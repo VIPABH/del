@@ -5,7 +5,12 @@ from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
     InputMessagesFilterUrl,
-    InputMessagesFilterVideo  # أضفنا فلتر الفيديو
+    InputMessagesFilterVideo,
+    InputMessagesFilterGif,
+    InputMessagesFilterSticker,
+    InputMessagesFilterMusic,
+    InputMessagesFilterVoice,
+    InputMessagesFilterRoundVideo
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -27,10 +32,14 @@ async def delete_filtered_messages():
 
     try:
         filters = {
-            "الملفات": InputMessagesFilterDocument,   # يتضمن جميع أنواع الملفات
-            "الروابط": InputMessagesFilterUrl,
+            "الملفات": InputMessagesFilterDocument,
             "الصور": InputMessagesFilterPhotos,
-            "الفيديوهات": InputMessagesFilterVideo  # فلتر الفيديوهات
+            "الفيديوهات": InputMessagesFilterVideo,
+            "المتحركات (GIF)": InputMessagesFilterGif,
+            "الملصقات (Stickers)": InputMessagesFilterSticker,
+            "الملفات الصوتية": InputMessagesFilterMusic,
+            "الرسائل الصوتية المرئية (فويس مرئي)": InputMessagesFilterRoundVideo,  # تأكد أن الفاصلة إنجليزية
+            "الروابط": InputMessagesFilterUrl
         }
 
         # مسح جميع الأنواع في كل دورة

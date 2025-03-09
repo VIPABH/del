@@ -7,14 +7,12 @@ from telethon.tl.types import (
     InputMessagesFilterUrl,
     InputMessagesFilterVideo,
     InputMessagesFilterGif,
-    InputMessagesFilterSticker,
     InputMessagesFilterMusic,
     InputMessagesFilterVoice,
     InputMessagesFilterRoundVideo
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-# تأكد من أن بيانات البيئة موجودة
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')
 
@@ -26,9 +24,8 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 plugin_category = "extra"
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-# الدالة لحذف الرسائل
 async def delete_filtered_messages():
-    chat_id = -1001996913931  # معرف القناة
+    chat_id = -1001996913931
 
     try:
         filters = {
@@ -36,41 +33,43 @@ async def delete_filtered_messages():
             "الصور": InputMessagesFilterPhotos,
             "الفيديوهات": InputMessagesFilterVideo,
             "المتحركات (GIF)": InputMessagesFilterGif,
-            "الملصقات (Stickers)": InputMessagesFilterSticker,
             "الملفات الصوتية": InputMessagesFilterMusic,
-            "الرسائل الصوتية المرئية (فويس مرئي)": InputMessagesFilterRoundVideo,  # تأكد أن الفاصلة إنجليزية
+            "الرسائل الصوتية": InputMessagesFilterVoice,
+            "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
             "الروابط": InputMessagesFilterUrl
         }
 
-        # مسح جميع الأنواع في كل دورة
         for msg_type, msg_filter in filters.items():
             async for message in ABH.iter_messages(chat_id, filter=msg_filter):
                 if message.sender_id in excluded_user_ids:
                     continue
                 await message.delete()
-                print(f"تم حذف رسالة من النوع {msg_type}")  # سجل الحذف
+                print(f"تم حذف رسالة من النوع {msg_type}")
+
+        async for message in ABH.iter_messages(chat_id):  # حذف الملصقات يدويًا
+            if message.sticker:
+                if message.sender_id in excluded_user_ids:
+                    continue
+                await message.delete()
+                print("تم حذف ملصق (Sticker)")
 
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-# جدولة الحذف كل 5 دقائق
 scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', minutes=5)
 
-# الحدث لتنفيذ الحذف عند إرسال الأمر "امسح"
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_on_command(event):
-    if event.sender_id != 1910015590:  # تحقق من أن المرسل هو الذي يملك الحق في الحذف
+    if event.sender_id != 1910015590:
         return
 
     await delete_filtered_messages()
     await event.reply("تم الحذف بنجاح!")
 
-# الدالة الرئيسية لتشغيل البوت
 async def main():
     await ABH.start()
-    scheduler.start()  # بدء الجدولة
+    scheduler.start()
     await ABH.run_until_disconnected()
 
-# تشغيل البوت
 asyncio.run(main())

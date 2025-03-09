@@ -8,7 +8,6 @@ from telethon.tl.types import (
     InputMessagesFilterVideo,
     InputMessagesFilterGif,
     InputMessagesFilterMusic,
-    InputMessagesFilterVoice,
     InputMessagesFilterRoundVideo
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -34,7 +33,6 @@ async def delete_filtered_messages():
             "الفيديوهات": InputMessagesFilterVideo,
             "المتحركات (GIF)": InputMessagesFilterGif,
             "الملفات الصوتية": InputMessagesFilterMusic,
-            "الرسائل الصوتية": InputMessagesFilterVoice,
             "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
             "الروابط": InputMessagesFilterUrl
         }

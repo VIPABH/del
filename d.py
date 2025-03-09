@@ -1,16 +1,8 @@
+from telethon import TelegramClient, events
+from telethon.tl.types import InputMessagesFilterDocument, InputMessagesFilterPhotos
+from telethon.tl.functions.channels import GetParticipants
 import os
 import asyncio
-from telethon import TelegramClient, events
-from telethon.tl.types import (
-    InputMessagesFilterDocument,
-    InputMessagesFilterPhotos,
-    InputMessagesFilterUrl,
-    InputMessagesFilterVideo,
-    InputMessagesFilterGif,
-    InputMessagesFilterMusic,
-    InputMessagesFilterRoundVideo
-)
-from telethon.tl.functions.channels import GetAdmins
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 api_id = os.getenv('API_ID')      
@@ -30,12 +22,7 @@ async def delete_filtered_messages():
     try:
         filters = {
             "الملفات": InputMessagesFilterDocument,
-            "الصور": InputMessagesFilterPhotos,
-            "الفيديوهات": InputMessagesFilterVideo,
-            "المتحركات (GIF)": InputMessagesFilterGif,
-            "الملفات الصوتية": InputMessagesFilterMusic,
-            "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
-            "الروابط": InputMessagesFilterUrl
+            "الصور": InputMessagesFilterPhotos
         }
 
         for msg_type, msg_filter in filters.items():
@@ -45,24 +32,17 @@ async def delete_filtered_messages():
                 await message.delete()
                 print(f"تم حذف رسالة من النوع {msg_type}")
 
-        async for message in ABH.iter_messages(chat_id):  # حذف الملصقات يدويًا
-            if message.sticker:
-                if message.sender_id in excluded_user_ids:
-                    continue
-                await message.delete()
-                print("تم حذف ملصق (Sticker)")
-
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 async def is_admin(user_id, chat_id):
     try:
-        # استدعاء GetAdmins للحصول على قائمة المشرفين
-        admins = await ABH(GetAdmins(channel=chat_id))
+        # استدعاء GetParticipants للحصول على جميع المشاركين
+        participants = await ABH(GetParticipants(channel=chat_id, filter='admins'))
         
-        # تحقق إذا كان المستخدم من ضمن المشرفين
-        for admin in admins.users:
-            if admin.id == user_id:
+        # تحقق إذا كان المستخدم مشرفًا
+        for participant in participants.users:
+            if participant.id == user_id:
                 return True
         return False
     except Exception as e:

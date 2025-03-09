@@ -8,8 +8,12 @@ from telethon.tl.types import (
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+# تأكد من أن بيانات البيئة موجودة
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')
+
+if not api_id or not api_hash:
+    raise ValueError("API_ID و API_HASH يجب أن يكونا موجودين في البيئة")
 
 ABH = TelegramClient("ubot", api_id, api_hash)
 
@@ -18,7 +22,7 @@ excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
 # الدالة لحذف الرسائل
 async def delete_filtered_messages():
-    chat_id = -1001996913931 # معرف القناة
+    chat_id = -1001996913931  # معرف القناة
 
     try:
         filters = {
@@ -37,7 +41,7 @@ async def delete_filtered_messages():
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-# جدولة الحذف كل دقيقة
+# جدولة الحذف كل 5 دقائق
 scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', minutes=5)
 

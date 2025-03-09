@@ -1,6 +1,6 @@
 import os
 import asyncio
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
@@ -16,8 +16,9 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 plugin_category = "extra"
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
+# الدالة لحذف الرسائل
 async def delete_filtered_messages():
-    chat_id = -1001968219024
+    chat_id = -1001968219024  # معرف القناة
 
     try:
         filters = {
@@ -32,19 +33,28 @@ async def delete_filtered_messages():
                     continue
                 await message.delete()
                 print(f"تم حذف رسالة من النوع {msg_type}")  # سجل الحذف
+
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
+# جدولة الحذف كل دقيقة
 scheduler = AsyncIOScheduler()
-scheduler.add_job(delete_filtered_messages, 'interval', hours=2)
+scheduler.add_job(delete_filtered_messages, 'interval', minutes=1)
 
+# الحدث لتنفيذ الحذف عند إرسال الأمر "امسح"
+@ABH.on(events.NewMessage(pattern="امسح$"))
+async def delete_on_command(event):
+    if event.sender_id != 1910015590:  # تحقق من أن المرسل هو الذي يملك الحق في الحذف
+        return
+
+    await delete_filtered_messages()
+    await event.reply("تم الحذف بنجاح!")
+
+# الدالة الرئيسية لتشغيل البوت
 async def main():
-    try:
-        await ABH.start()
-        scheduler.start()
-        print("البرنامج بدأ...")  # سجل بدء البرنامج
-        await ABH.run_until_disconnected()
-    except Exception as e:
-        print(f"حدث خطأ في التشغيل: {str(e)}")
+    await ABH.start()
+    scheduler.start()
+    await ABH.run_until_disconnected()
 
+# تشغيل البوت
 asyncio.run(main())

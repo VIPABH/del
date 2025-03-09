@@ -36,12 +36,11 @@ async def delete_filtered_messages():
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 scheduler = AsyncIOScheduler()
-
-loop = asyncio.get_event_loop()
-loop.create_task(delete_filtered_messages()) 
-
 scheduler.add_job(delete_filtered_messages, 'interval', seconds=10)
-scheduler.start()
 
-ABH.start()
-ABH.run_until_disconnected()
+async def main():
+    await ABH.start()
+    scheduler.start()
+    await ABH.run_until_disconnected()
+
+asyncio.run(main())

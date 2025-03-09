@@ -54,16 +54,23 @@ async def delete_filtered_messages():
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
+async def is_admin(user_id, chat_id):
+    participants = await ABH.get_participants(chat_id, filter='admins')  # الحصول على قائمة المشرفين
+    for participant in participants:
+        if participant.id == user_id:
+            return True
+    return False
+
 scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', minutes=60)
 
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_on_command(event):
-    if event.sender_id != 1910015590:
-        return
-
-    await delete_filtered_messages()
-    await event.reply("تم الحذف بنجاح!")
+    if await is_admin(event.sender_id, event.chat_id):  # تحقق إذا كان المرسل مشرفًا
+        await delete_filtered_messages()
+        await event.reply("تم الحذف بنجاح!")
+    else:
+        await event.reply("أنت لست مشرفًا، لا يمكنك تنفيذ هذا الأمر.")
 
 async def main():
     await ABH.start()

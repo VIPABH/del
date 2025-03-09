@@ -25,7 +25,7 @@ plugin_category = "extra"
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
 async def delete_filtered_messages():
-    chat_id = -1001996913931
+    chat_id = -1001968219024
 
     try:
         filters = {

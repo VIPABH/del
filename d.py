@@ -4,7 +4,8 @@ from telethon import TelegramClient, events
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
-    InputMessagesFilterUrl
+    InputMessagesFilterUrl,
+    InputMessagesFilterVideo  # أضفنا فلتر الفيديو
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -26,9 +27,10 @@ async def delete_filtered_messages():
 
     try:
         filters = {
-            "الملفات": InputMessagesFilterDocument,
+            "الملفات": InputMessagesFilterDocument,   # يتضمن جميع أنواع الملفات
             "الروابط": InputMessagesFilterUrl,
-            "الصور": InputMessagesFilterPhotos
+            "الصور": InputMessagesFilterPhotos,
+            "الفيديوهات": InputMessagesFilterVideo  # فلتر الفيديوهات
         }
 
         # مسح جميع الأنواع في كل دورة

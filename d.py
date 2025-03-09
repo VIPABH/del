@@ -17,7 +17,7 @@ plugin_category = "extra"
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
 async def delete_filtered_messages():
-    chat_id = -1001996913931
+    chat_id = -1001968219024
 
     try:
         filters = {
@@ -31,7 +31,7 @@ async def delete_filtered_messages():
                 if message.sender_id in excluded_user_ids:
                     continue
                 await message.delete()
-
+                print(f"تم حذف رسالة من النوع {msg_type}")  # سجل الحذف
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
@@ -39,11 +39,12 @@ scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', hours=2)
 
 async def main():
-    await ABH.start()
-    scheduler.start()
-    await ABH.run_until_disconnected()
+    try:
+        await ABH.start()
+        scheduler.start()
+        print("البرنامج بدأ...")  # سجل بدء البرنامج
+        await ABH.run_until_disconnected()
+    except Exception as e:
+        print(f"حدث خطأ في التشغيل: {str(e)}")
 
-# استبدال asyncio.run() باستخدام حلقة asyncio الحالية
-loop = asyncio.get_event_loop()
-loop.create_task(main())
-loop.run_forever()
+asyncio.run(main())

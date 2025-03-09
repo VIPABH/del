@@ -39,7 +39,7 @@ async def delete_filtered_messages():
 
 # جدولة الحذف كل دقيقة
 scheduler = AsyncIOScheduler()
-scheduler.add_job(delete_filtered_messages, 'interval', minutes=1)
+scheduler.add_job(delete_filtered_messages, 'interval', minutes=5)
 
 # الحدث لتنفيذ الحذف عند إرسال الأمر "امسح"
 @ABH.on(events.NewMessage(pattern="امسح$"))

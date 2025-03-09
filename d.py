@@ -1,5 +1,6 @@
 import os
-from telethon import TelegramClient, events
+import asyncio
+from telethon import TelegramClient
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
@@ -25,21 +26,20 @@ async def delete_filtered_messages():
             "الصور": InputMessagesFilterPhotos
         }
 
-        total_deleted = 0
-        deleted_counts = {key: 0 for key in filters.keys()}
-
         for msg_type, msg_filter in filters.items():
             async for message in ABH.iter_messages(chat_id, filter=msg_filter):
                 if message.sender_id in excluded_user_ids:
                     continue
                 await message.delete()
-                deleted_counts[msg_type] += 1
-                total_deleted += 1
 
     except Exception as e:
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 scheduler = AsyncIOScheduler()
+
+loop = asyncio.get_event_loop()
+loop.create_task(delete_filtered_messages()) 
+
 scheduler.add_job(delete_filtered_messages, 'interval', seconds=10)
 scheduler.start()
 

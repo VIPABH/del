@@ -57,7 +57,7 @@ async def delete_filtered_messages():
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 scheduler = AsyncIOScheduler()
-scheduler.add_job(delete_filtered_messages, 'interval', minutes=5)
+scheduler.add_job(delete_filtered_messages, 'interval', minutes=60)
 
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_on_command(event):

@@ -10,6 +10,7 @@ from telethon.tl.types import (
     InputMessagesFilterMusic,
     InputMessagesFilterRoundVideo
 )
+from telethon.tl.functions.channels import GetAdmins
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 api_id = os.getenv('API_ID')      
@@ -55,11 +56,18 @@ async def delete_filtered_messages():
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 async def is_admin(user_id, chat_id):
-    participants = await ABH.get_participants(chat_id, filter='admins')  # الحصول على قائمة المشرفين
-    for participant in participants:
-        if participant.id == user_id:
-            return True
-    return False
+    try:
+        # استدعاء GetAdmins للحصول على قائمة المشرفين
+        admins = await ABH(GetAdmins(channel=chat_id))
+        
+        # تحقق إذا كان المستخدم من ضمن المشرفين
+        for admin in admins.users:
+            if admin.id == user_id:
+                return True
+        return False
+    except Exception as e:
+        print(f"خطأ أثناء التحقق من المشرفين: {str(e)}")
+        return False
 
 scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', minutes=60)

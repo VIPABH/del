@@ -1,8 +1,8 @@
-from telethon import TelegramClient, events
-from telethon.tl.types import InputMessagesFilterDocument, InputMessagesFilterPhotos
-from telethon.tl.functions.channels import GetParticipants
 import os
 import asyncio
+from telethon import TelegramClient, events
+from telethon.tl.types import InputMessagesFilterDocument, InputMessagesFilterPhotos
+from telethon.tl.functions.channels import GetParticipantRequest  # التعديل هنا
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 api_id = os.getenv('API_ID')      
@@ -37,13 +37,12 @@ async def delete_filtered_messages():
 
 async def is_admin(user_id, chat_id):
     try:
-        # استدعاء GetParticipants للحصول على جميع المشاركين
-        participants = await ABH(GetParticipants(channel=chat_id, filter='admins'))
+        # استخدام GetParticipantRequest للحصول على معلومات عن مشرف القناة
+        participant = await ABH(GetParticipantRequest(channel=chat_id, user_id=user_id))
         
-        # تحقق إذا كان المستخدم مشرفًا
-        for participant in participants.users:
-            if participant.id == user_id:
-                return True
+        # تحقق إذا كان المستخدم مشرفًا بناءً على صلاحياته
+        if participant.user.id == user_id and participant.participant.is_admin:
+            return True
         return False
     except Exception as e:
         print(f"خطأ أثناء التحقق من المشرفين: {str(e)}")

@@ -36,7 +36,7 @@ async def delete_filtered_messages():
         print(f"حدث خطأ أثناء الحذف: {str(e)}")
 
 scheduler = AsyncIOScheduler()
-scheduler.add_job(delete_filtered_messages, 'interval', seconds=10)
+scheduler.add_job(delete_filtered_messages, 'interval', seconds=30)
 
 async def main():
     await ABH.start()

@@ -31,6 +31,7 @@ async def delete_filtered_messages():
             "الصور": InputMessagesFilterPhotos
         }
 
+        # مسح جميع الأنواع في كل دورة
         for msg_type, msg_filter in filters.items():
             async for message in ABH.iter_messages(chat_id, filter=msg_filter):
                 if message.sender_id in excluded_user_ids:
@@ -57,7 +58,7 @@ async def delete_on_command(event):
 # الدالة الرئيسية لتشغيل البوت
 async def main():
     await ABH.start()
-    scheduler.start()
+    scheduler.start()  # بدء الجدولة
     await ABH.run_until_disconnected()
 
 # تشغيل البوت

@@ -6,6 +6,7 @@ from telethon.tl.types import (
     InputMessagesFilterPhotos,
     InputMessagesFilterUrl
 )
+
 # تحميل API_ID و API_HASH من البيئة
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')
@@ -52,6 +53,14 @@ async def delete_filtered_messages(event):
                     total_deleted += 1
                     await asyncio.sleep(1)  # تأخير بين عمليات الحذف لتقليل الضغط على الخوادم
 
+        # حذف الملصقات بشكل منفصل
+        async for message in event.client.iter_messages(event.chat_id):
+            if message.sticker and message.sender_id not in excluded_user_ids:
+                await message.delete()
+                deleted_counts["الملصقات"] = deleted_counts.get("الملصقات", 0) + 1
+                total_deleted += 1
+                await asyncio.sleep(1)
+
         if total_deleted > 0:
             details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
             await event.reply(f"تم حذف {total_deleted} رسالة.\nالتفاصيل:\n{details}")
@@ -63,13 +72,10 @@ async def delete_filtered_messages(event):
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-# طباعة رسالة تفيد بأن البوت يعمل
 print('del is working ✓')
 
-# بداية الاتصال بالـ Telegram API بشكل صريح
 async def main():
-    await ABH.start()  # تأكد من أن البوت متصل
-    await ABH.run_until_disconnected()  # ابدأ الاستماع للرسائل
+    await ABH.start()
+    await ABH.run_until_disconnected()
 
-# تشغيل العميل
 asyncio.run(main())

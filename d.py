@@ -11,7 +11,6 @@ from telethon.tl.types import (
     InputMessagesFilterSticker,
     InputMessagesFilterRoundVideo
 )
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # تحميل API_ID و API_HASH من البيئة
 api_id = os.getenv('API_ID')      
@@ -26,9 +25,8 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 
 # قائمة المستخدمين المستبعدين
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
-uid = {
-    1910015590
-}
+uid = {1910015590}
+
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_filtered_messages(event):
     id = event.sender_id
@@ -38,10 +36,11 @@ async def delete_filtered_messages(event):
         await abh.edit('جاري المسح انتظر')
     else:
         return
+
     try:
         filters = {
-           "الملفات": InputMessagesFilterDocument,
-           "ملصقات": InputMessagesFilterSticker,
+            "الملفات": InputMessagesFilterDocument,
+            "ملصقات": InputMessagesFilterSticker,
             "الصور": InputMessagesFilterPhotos,
             "الفيديوهات": InputMessagesFilterVideo,
             "المتحركات (GIF)": InputMessagesFilterGif,
@@ -50,19 +49,19 @@ async def delete_filtered_messages(event):
             "الروابط": InputMessagesFilterUrl
         }
 
-        total_deleted = 0 
+        total_deleted = 0
         deleted_counts = {key: 0 for key in filters.keys()}
 
-        # تكرار جميع الرسائل مع الفلاتر المحددة
+        # حذف الرسائل باستخدام الفلاتر
         for msg_type, msg_filter in filters.items():
             async for message in event.client.iter_messages(event.chat_id, filter=msg_filter):
-                # تخطي الرسائل من المستخدمين المستبعدين
                 if message.sender_id in excluded_user_ids:
-                    continue 
+                    continue
                 if message:
                     await message.delete()
                     deleted_counts[msg_type] += 1
                     total_deleted += 1
+                    await asyncio.sleep(1)  # تأخير بين عمليات الحذف لتقليل الضغط على الخوادم
 
         if total_deleted > 0:
             details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
@@ -70,6 +69,8 @@ async def delete_filtered_messages(event):
         else:
             await event.reply("لا توجد رسائل تطابق الفلاتر المحددة!")
 
+    except asyncio.TimeoutError:
+        await event.reply("توقيت الحذف انتهى، يرجى المحاولة مرة أخرى.")
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 

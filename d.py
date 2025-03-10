@@ -70,18 +70,36 @@ async def delete_filtered_messages():
 scheduler = AsyncIOScheduler()
 scheduler.add_job(delete_filtered_messages, 'interval', minutes=5)
 
-uid = [1910015590]
+uid = [
+    1910015590,
+    890952036,
+    6359569537,
+    5914876113,
+    6498922948,
+    7615088480,
+    704233200,
+    6164435743,
+    1122162341,
+    1260870186,
+    6783332896,
+    7722512961,
+    1494932118,
+    7483592520,
+    201728276,
+    7400171284
+
+       ]
 
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_on_command(event):
     id = event.sender_id
     if id in uid: 
+        abh = await event.respond('جاري الحذف انتظر')
         await delete_filtered_messages()
-        
         report = "\n".join([f"{msg_type}: {count} رسالة" for msg_type, count in delete_count.items() if count > 0])
-        await event.reply(f"تم الحذف بنجاح!\n\nتقرير الحذف:\n{report}")
+        await abh.edit(f"تم الحذف بنجاح!\n\nتقرير الحذف:\n{report}")
     else:
-        await event.reply("صديقي الامر خاص بالمشرفين , خلي ابن هاشم يضيفك بي ```ههههه```")
+        await event.reply("صديقي الامر خاص بالمشرفين , خلي ياسر يضيفك بي ```ههههه```")
         return
 
 async def main():

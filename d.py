@@ -99,7 +99,7 @@ async def delete_on_command(event):
         report = "\n".join([f"{msg_type}: {count} رسالة" for msg_type, count in delete_count.items() if count > 0])
         await abh.edit(f"تم الحذف بنجاح!\n\nتقرير الحذف:\n{report}")
     else:
-        await event.reply("صديقي الامر خاص بالمشرفين , خلي ياسر يضيفك بي ```ههههه```")
+        await abh.reply("صديقي الامر خاص بالمشرفين , خلي ياسر يضيفك بي ```ههههه```")
         return
 
 async def main():

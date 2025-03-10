@@ -35,7 +35,7 @@ delete_count = {
 }
 
 async def delete_filtered_messages():
-    chat_id = -1001996913931
+    chat_id = -1001968219024
 
     try:
         filters = {

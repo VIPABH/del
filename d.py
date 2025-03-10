@@ -4,14 +4,8 @@ from telethon import TelegramClient, events
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
-    InputMessagesFilterUrl,
-    InputMessagesFilterVideo,
-    InputMessagesFilterGif,
-    InputMessagesFilterMusic,
-    InputMessagesFilterSticker,
-    InputMessagesFilterRoundVideo
+    InputMessagesFilterUrl
 )
-
 # تحميل API_ID و API_HASH من البيئة
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')
@@ -40,12 +34,7 @@ async def delete_filtered_messages(event):
     try:
         filters = {
             "الملفات": InputMessagesFilterDocument,
-            "ملصقات": InputMessagesFilterSticker,
             "الصور": InputMessagesFilterPhotos,
-            "الفيديوهات": InputMessagesFilterVideo,
-            "المتحركات (GIF)": InputMessagesFilterGif,
-            "الملفات الصوتية": InputMessagesFilterMusic,
-            "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
             "الروابط": InputMessagesFilterUrl
         }
 

@@ -8,6 +8,7 @@ from telethon.tl.types import (
     InputMessagesFilterVideo,
     InputMessagesFilterGif,
     InputMessagesFilterMusic,
+    InputMessagesFilterSticker,
     InputMessagesFilterRoundVideo
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -25,14 +26,22 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 
 # قائمة المستخدمين المستبعدين
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
-
+uid = {
+    1910015590
+}
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_filtered_messages(event):
-    # حذف الرسالة التي تحتوي على الأمر "امسح"
-    await event.delete()
+    id = event.sender_id
+    if id in uid:
+        abh = await event.reply('☝')
+        await event.sleep(3)
+        await abh.edit('جاري المسح انتظر')
+    else:
+        return
     try:
         filters = {
            "الملفات": InputMessagesFilterDocument,
+           "ملصقات": InputMessagesFilterSticker,
             "الصور": InputMessagesFilterPhotos,
             "الفيديوهات": InputMessagesFilterVideo,
             "المتحركات (GIF)": InputMessagesFilterGif,
@@ -55,7 +64,6 @@ async def delete_filtered_messages(event):
                     deleted_counts[msg_type] += 1
                     total_deleted += 1
 
-        # إذا تم حذف رسائل، إظهار تفاصيل الحذف
         if total_deleted > 0:
             details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
             await event.reply(f"تم حذف {total_deleted} رسالة.\nالتفاصيل:\n{details}")

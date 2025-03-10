@@ -59,7 +59,7 @@ async def delete_filtered_messages(event):
                     await message.delete()
                     deleted_counts[msg_type] += 1
                     total_deleted += 1
-                    await asyncio.sleep(1)  # تأخير بين عمليات الحذف لتقليل الضغط على الخوادم
+                    # await asyncio.sleep(1)  # تأخير بين عمليات الحذف لتقليل الضغط على الخوادم
 
         # حذف الملصقات بشكل منفصل
         async for message in event.client.iter_messages(event.chat_id):

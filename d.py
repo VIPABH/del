@@ -26,7 +26,7 @@ async def delete_filtered_messages(event):
     id = event.sender_id
     if id in uid:
         abh = await event.reply('☝')
-        await event.sleep(3)
+        await asyncio.sleep(3)
         await abh.edit('جاري المسح انتظر')
     else:
         return

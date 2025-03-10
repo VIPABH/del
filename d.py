@@ -43,10 +43,9 @@ async def delete_filtered_messages(chat_id):
             async for message in ABH.iter_messages(chat_id, filter=msg_filter):
                 if message.sender_id in excluded_user_ids:
                     continue  
-                if message:
-                    await message.delete()
-                    deleted_counts[msg_type] += 1
-                    total_deleted += 1
+                await message.delete()
+                deleted_counts[msg_type] += 1
+                total_deleted += 1
 
         if total_deleted > 0:
             details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
@@ -66,8 +65,11 @@ async def manual_delete(event):
 # تشغيل الحذف تلقائيًا كل ساعتين
 scheduler = AsyncIOScheduler()
 
+async def scheduled_delete():
+    await delete_filtered_messages(-1001968219024)  # استبدل هذا بمعرف المجموعة الخاصة بك
+
 try:
-    scheduler.add_job(delete_filtered_messages, "interval", hours=2, args=[-1001968219024])
+    scheduler.add_job(lambda: asyncio.create_task(scheduled_delete()), "interval", hours=2)
     scheduler.start()
     print("✅ تمت جدولة عملية الحذف التلقائي كل ساعتين بنجاح!")
 except Exception as e:

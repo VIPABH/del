@@ -26,7 +26,7 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 uid = {1910015590}
 
-@ABH.on(events.NewMessage(pattern="امسح$"))
+@ABH.on(events.NewMessage(pattern="تنتظيف$"))
 async def delete_filtered_messages(event):
     id = event.sender_id
     if id in uid:

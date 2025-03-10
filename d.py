@@ -23,18 +23,19 @@ ABH = TelegramClient("ubot", api_id, api_hash)
 plugin_category = "extra"
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-delete_count = {
-    "الملفات": 0,
-    "الصور": 0,
-    "الفيديوهات": 0,
-    "المتحركات (GIF)": 0,
-    "الملفات الصوتية": 0,
-    "الرسائل الصوتية المرئية": 0,
-    "الروابط": 0,
-    "الملصقات": 0
-}
-
 async def delete_filtered_messages():
+    global delete_count
+    delete_count = {
+        "الملفات": 0,
+        "الصور": 0,
+        "الفيديوهات": 0,
+        "المتحركات (GIF)": 0,
+        "الملفات الصوتية": 0,
+        "الرسائل الصوتية المرئية": 0,
+        "الروابط": 0,
+        "الملصقات": 0
+    }
+
     chat_id = -1001968219024
 
     try:
@@ -87,24 +88,27 @@ uid = [
     7483592520,
     201728276,
     7400171284
-
-       ]
+]
 
 @ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_on_command(event):
+    global delete_count
     id = event.sender_id
     if id in uid: 
-        abh = await event.respond('جاري الحذف انتظر')
+        await event.respond('جاري الحذف انتظر...')
         await delete_filtered_messages()
         report = "\n".join([f"{msg_type}: {count} رسالة" for msg_type, count in delete_count.items() if count > 0])
-        await abh.edit(f"تم الحذف بنجاح!\n\nتقرير الحذف:\n{report}")
+        if report:
+            await event.respond(f"تم الحذف بنجاح!\n\nتقرير الحذف:\n{report}")
+        else:
+            await event.respond("لم يتم العثور على أي رسائل للحذف.")
     else:
-        await abh.reply("صديقي الامر خاص بالمشرفين , خلي ياسر يضيفك بي ```ههههه```")
-        return
+        await event.reply("صديقي الامر خاص بالمشرفين , خلي ياسر يضيفك بي ```ههههه```")
 
 async def main():
     await ABH.start()
     scheduler.start()
     await ABH.run_until_disconnected()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    ABH.loop.run_until_complete(main())

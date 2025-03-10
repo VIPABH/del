@@ -68,5 +68,10 @@ async def delete_filtered_messages(event):
 # طباعة رسالة تفيد بأن البوت يعمل
 print('del is working ✓')
 
+# بداية الاتصال بالـ Telegram API بشكل صريح
+async def main():
+    await ABH.start()  # تأكد من أن البوت متصل
+    await ABH.run_until_disconnected()  # ابدأ الاستماع للرسائل
+
 # تشغيل العميل
-ABH.run_until_disconnected()
+asyncio.run(main())

@@ -8,7 +8,6 @@ from telethon.tl.types import (
     InputMessagesFilterVideo,
     InputMessagesFilterGif,
     InputMessagesFilterMusic,
-    InputMessagesFilterSticker,
     InputMessagesFilterRoundVideo
 )
 

@@ -4,7 +4,12 @@ from telethon import TelegramClient, events
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
-    InputMessagesFilterUrl
+    InputMessagesFilterUrl,
+    InputMessagesFilterVideo,
+    InputMessagesFilterGif,
+    InputMessagesFilterMusic,
+    InputMessagesFilterSticker,
+    InputMessagesFilterRoundVideo
 )
 
 # تحميل API_ID و API_HASH من البيئة
@@ -35,7 +40,12 @@ async def delete_filtered_messages(event):
     try:
         filters = {
             "الملفات": InputMessagesFilterDocument,
+            "ملصقات": InputMessagesFilterSticker,
             "الصور": InputMessagesFilterPhotos,
+            "الفيديوهات": InputMessagesFilterVideo,
+            "المتحركات (GIF)": InputMessagesFilterGif,
+            "الملفات الصوتية": InputMessagesFilterMusic,
+            "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
             "الروابط": InputMessagesFilterUrl
         }
 

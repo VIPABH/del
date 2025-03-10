@@ -39,7 +39,6 @@ async def delete_filtered_messages(event):
     try:
         filters = {
             "الملفات": InputMessagesFilterDocument,
-            "ملصقات": InputMessagesFilterSticker,
             "الصور": InputMessagesFilterPhotos,
             "الفيديوهات": InputMessagesFilterVideo,
             "المتحركات (GIF)": InputMessagesFilterGif,

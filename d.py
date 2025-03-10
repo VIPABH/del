@@ -48,3 +48,5 @@ async def delete_filtered_messages(event):
 
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
+print('del is working ✓')
+ABH.run_until_disconnected()

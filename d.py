@@ -1,89 +1,101 @@
-import os
-import asyncio
 from telethon import TelegramClient, events
-from telethon.tl.types import (
-    InputMessagesFilterDocument,
-    InputMessagesFilterPhotos,
-    InputMessagesFilterUrl,
-    InputMessagesFilterVideo,
-    InputMessagesFilterGif,
-    InputMessagesFilterMusic,
-    InputMessagesFilterRoundVideo
-)
+import os, asyncio, random, time
 
-# تحميل API_ID و API_HASH من البيئة
-api_id = os.getenv('API_ID')      
-api_hash = os.getenv('API_HASH')
+api_id = os.getenv("API_ID")
+api_hash = os.getenv("API_HASH")
+bot_token = os.getenv("BOT_TOKEN")
 
-# التحقق من وجود API_ID و API_HASH
-if not api_id or not api_hash:
-    raise ValueError("API_ID و API_HASH يجب أن يكونا موجودين في البيئة")
+if not all([api_id, api_hash, bot_token]):
+    raise ValueError("الرجاء ضبط المتغيرات البيئية API_ID, API_HASH, و BOT_TOKEN")
 
-# إنشاء العميل
-ABH = TelegramClient("ubot", api_id, api_hash)
+ABH = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 
-# قائمة المستخدمين المستبعدين
-excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
-uid = {1910015590}
+a = 0
+players = {}
+answer = None
+is_on = False
+start_time = None
+words = [
+    'علي', 'حميد', 'العظيم', 'المجيد', 'مهندس', 'لاعب', 'صانع', 'كلمة',
+    'مفردة', 'مبارك', 'مبرمج', 'الاول', 'مؤول', 'سميع', 'رحمن', 'طالب',
+    'بطريق', 'سمع', 'يذهب', 'يعود', 'يقود', 'يرى', 'يكتب', 'الاسرع', 'كود',
+    'نمط', 'تشغيل', 'خط', 'تاريخ', 'وقت', 'تجربة', 'جوهري', 'قاعدة', 'هروب',
+]
 
-@ABH.on(events.NewMessage(pattern="تنظيف$"))
-async def delete_filtered_messages(event):
-    id = event.sender_id
-    if id in uid:
-        abh = await event.reply('☝')
-        await asyncio.sleep(3)
-        await abh.edit('جاري المسح انتظر')
-    else:
-        return
-
-    try:
-        filters = {
-            "الملفات": InputMessagesFilterDocument,
-            "الصور": InputMessagesFilterPhotos,
-            "الفيديوهات": InputMessagesFilterVideo,
-            "المتحركات (GIF)": InputMessagesFilterGif,
-            "الملفات الصوتية": InputMessagesFilterMusic,
-            "الرسائل الصوتية المرئية": InputMessagesFilterRoundVideo,
-            "الروابط": InputMessagesFilterUrl
-        }
-
-        total_deleted = 0
-        deleted_counts = {key: 0 for key in filters.keys()}
-
-        # حذف الرسائل باستخدام الفلاتر
-        for msg_type, msg_filter in filters.items():
-            async for message in event.client.iter_messages(event.chat_id, filter=msg_filter):
-                if message.sender_id in excluded_user_ids:
-                    continue
-                if message:
-                    await message.delete()
-                    deleted_counts[msg_type] += 1
-                    total_deleted += 1
-                    # await asyncio.sleep(1)  # تأخير بين عمليات الحذف لتقليل الضغط على الخوادم
-
-        # حذف الملصقات بشكل منفصل
-        async for message in event.client.iter_messages(event.chat_id):
-            if message.sticker and message.sender_id not in excluded_user_ids:
-                await message.delete()
-                deleted_counts["الملصقات"] = deleted_counts.get("الملصقات", 0) + 1
-                total_deleted += 1
-                await asyncio.sleep(1)
-
-        if total_deleted > 0:
-            details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
-            await event.reply(f"تم حذف {total_deleted} رسالة.\nالتفاصيل:\n{details}")
+@ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
+async def start_s(event):
+    """بدء اللعبة والإعلان عنها"""
+    global is_on, players
+    is_on = True
+    players.clear()
+    await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
+    uid = event.sender_id
+    sender = await event.get_sender()
+    name = sender.first_name
+    if uid not in players:
+        players[uid] = {"username": name}    
+@ABH.on(events.NewMessage(pattern="(?i)انا$"))
+async def sign_in(event):
+    """تسجيل اللاعبين"""
+    if is_on:
+        uid = event.sender_id
+        sender = await event.get_sender()
+        name = sender.first_name
+        if uid not in players:
+            players[uid] = {"username": name}
+            await event.reply('سجلتك بالعبة لتدز مره لخ')
         else:
-            await event.reply("لا توجد رسائل تطابق الفلاتر المحددة!")
+            await event.reply("عزيزي الصديق ضفتك قبل شوية **ميحتاج تدز**")
 
-    except asyncio.TimeoutError:
-        await event.reply("توقيت الحذف انتهى، يرجى المحاولة مرة أخرى.")
-    except Exception as e:
-        await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
+@ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
+async def players_show(event):
+    """عرض قائمة اللاعبين"""
+    if is_on:
+        if players:
+            player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
+            await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
+        else:
+            await event.reply('ماكو لاعبين 🙃')
 
-print('del is working ✓')
-
-async def main():
-    await ABH.start()
-    await ABH.run_until_disconnected()
-
-asyncio.run(main())
+@ABH.on(events.NewMessage(pattern="(?i)ابدا$"))
+async def start_f(event):
+    global answer, is_on, start_time, a
+    if is_on:
+        await event.reply('تم بدء اللعبه انتظر ثواني')
+        await asyncio.sleep(2)
+        answer = random.choice(words)
+        await event.respond(f'✍ اكتب ⤶ `{answer}`')
+        start_time = time.time()
+        for i in range(4):
+             await asyncio.sleep(10)
+             answer = random.choice(words)
+             await event.respond(f'✍ اكتب ⤶ {answer}')
+             start_time = time.time()
+             a +=1
+             pass
+@ABH.on(events.NewMessage)
+async def check(event):
+    """التحقق من الإجابة وإنهاء اللعبة"""
+    global is_on, start_time, answer
+    if not is_on or start_time is None:
+        return
+    elapsed_time = time.time() - start_time
+    seconds = int(elapsed_time)
+    milliseconds = int((elapsed_time - seconds) * 1000)
+    isabh = event.text.strip()
+    uid = event.sender_id
+    if answer and isabh.lower() == answer.lower() and uid in players:
+        await event.reply(f'اجابة موفقة احسنت\n الوقت المستغرق {seconds}:{milliseconds}')
+        is_on = True
+        answer = None
+        start_time = None
+    elif elapsed_time >= 10:
+        await event.reply('انتهت المدة ومحد جاووب🥱')
+        is_on = False
+        answer = None
+        start_time = None
+        if a == 5:
+            is_on = False
+        else:
+            True
+ABH.run_until_disconnected()

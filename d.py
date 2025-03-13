@@ -20,38 +20,45 @@ words = [
 ]
 @ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
 async def start_s(event):
+    """بدء اللعبة والإعلان عنها"""
     global is_on, players
     is_on = True
     players.clear()
-    await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
-    sender = await event.get_sender()
+    await event.reply("تم بدء لعبة اسرع \nأرسل انا لدخول اللعبة أو تم للبدء.\n**ENJOY BABY✌**")
     uid = event.sender_id
-    username = sender.first_name    
+    sender = await event.get_sender()
+    name = sender.first_name
     if uid not in players:
-        points[username] = {"username": username, "score": 0}
+        players[uid] = {"username": name}    
+    uid = event.sender_id
+    sender = await event.get_sender()
+    name = sender.first_name
+    if uid not in players:
+        points[name] = {"username": name, "score": 0}    
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
+    """تسجيل اللاعبين"""
     if is_on:
         uid = event.sender_id
         sender = await event.get_sender()
-        username = sender.first_name
+        name = sender.first_name
         if uid not in players:
-            players[username] = {"username": username}
-            if username not in points:
-                points[username] = {"username": username, "score": 0}
+            players[uid] = {"username": name}
             await event.reply('سجلتك بالعبة لتدز مره لخ')
         else:
             await event.reply("عزيزي الصديق ضفتك قبل شوية **ميحتاج تدز**")
+            uid = event.sender_id
             sender = await event.get_sender()
-            username = sender.first_name
+            name = sender.first_name
             if uid not in players:
-                points[username] = {"username": username, "score": 0}
+                points[name] = {"username": name, "score": 0}
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
+    """عرض قائمة اللاعبين"""
     if is_on:
         if players:
             player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
-            await event.reply(f"قائمة اللاعبين:\n{player_list}")
+            await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
         else:
             await event.reply('ماكو لاعبين 🙃')
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
@@ -59,32 +66,43 @@ async def start_f(event):
     global answer, is_on, start_time, a
     if is_on:
         await event.reply('تم بدء اللعبه انتظر ثواني')
-        await asyncio.sleep(3)
-        for i in range(5):
-            await asyncio.sleep(10)
-            answer = random.choice(words)
-            await event.respond(f'✍ اكتب ⤶ {answer}')
-            start_time = time.time()
-            a +=1
-            pass
+        await asyncio.sleep(2)
+        answer = random.choice(words)
+        await event.respond(f'✍ اكتب ⤶ {answer}')
+        start_time = time.time()
+        for i in range(4):
+             await asyncio.sleep(10)
+             answer = random.choice(words)
+             await event.respond(f'✍ اكتب ⤶ {answer}')
+             start_time = time.time()
+             a +=1
+             pass
 @ABH.on(events.NewMessage)
 async def check(event):
-    global is_on, start_time, answer, a
+    """التحقق من الإجابة وإنهاء اللعبة"""
+    global is_on, start_time, answer
     if not is_on or start_time is None:
         return
     elapsed_time = time.time() - start_time
     seconds = int(elapsed_time)
     milliseconds = int((elapsed_time - seconds) * 1000)
     isabh = event.text.strip()
-    wid = event.sender_id
-    if answer and isabh.lower() == answer.lower() and wid in players:
-        username = players[username]["username"]
-        points[username]["score"] += 1
-        await event.reply(f'إجابة صحيحة! {username} حصلت على نقطة!\nالوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
+    if answer and isabh.lower() == answer.lower() and uid in players:
+        await event.reply(f'اجابة موفقة احسنت\n الوقت المستغرق {seconds}:{milliseconds}')
+        uid = event.sender_id
+        uname = event.first_name
+        is_on = True
         answer = None
         start_time = None
     elif elapsed_time >= 10:
+        await event.reply('انتهت المدة ومحد جاووب🥱')
+        is_on = False
         answer = None
         start_time = None
-        return
+        if a == 5:
+            is_on = False
+            points_list = "\n".join([f"{pid} - {info['score']}" for pid, info in points.items()])
+            await event.reply(f" نقاط الاعبين 👇 \n{points_list}")            
+        else:
+            True
 ABH.run_until_disconnected()

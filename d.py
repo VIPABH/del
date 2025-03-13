@@ -25,11 +25,7 @@ async def start_s(event):
     players.clear()
     await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
     uid = event.sender_id
-    sender = await event.get_sender()
-    username = sender.first_name
-    if uid not in players:
-        players[uid] = {"username": username}    
-    uid = event.sender_id
+    username = sender.first_name    
     sender = await event.get_sender()
     if uid not in players:
         points[username] = {"username": username, "score": 0}
@@ -40,13 +36,12 @@ async def sign_in(event):
         sender = await event.get_sender()
         username = sender.first_name
         if uid not in players:
-            players[uid] = {"username": username}
+            players[username] = {"username": username}
             if username not in points:
                 points[username] = {"username": username, "score": 0}
             await event.reply('سجلتك بالعبة لتدز مره لخ')
         else:
             await event.reply("عزيزي الصديق ضفتك قبل شوية **ميحتاج تدز**")
-            uid = event.sender_id
             sender = await event.get_sender()
             username = sender.first_name
             if uid not in players:
@@ -83,7 +78,7 @@ async def check(event):
     isabh = event.text.strip()
     wid = event.sender_id
     if answer and isabh.lower() == answer.lower() and wid in players:
-        username = players[wid]["username"]
+        username = players[username]["username"]
         points[username]["score"] += 1
         await event.reply(f'إجابة صحيحة! {username} حصلت على نقطة!\nالوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
         answer = None

@@ -9,14 +9,14 @@ if not all([api_id, api_hash, bot_token]):
     raise ValueError("الرجاء ضبط المتغيرات البيئية API_ID, API_HASH, و BOT_TOKEN")
 
 ABH = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
-points = [
 
-]
-a = 0
+points = {}
 players = {}
 answer = None
 is_on = False
 start_time = None
+a = 0
+
 words = [
     'علي', 'حميد', 'العظيم', 'المجيد', 'مهندس', 'لاعب', 'صانع', 'كلمة',
     'مفردة', 'مبارك', 'مبرمج', 'الاول', 'مؤول', 'سميع', 'رحمن', 'طالب',
@@ -26,89 +26,81 @@ words = [
 
 @ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
 async def start_s(event):
-    """بدء اللعبة والإعلان عنها"""
-    global is_on, players
+    global is_on, players, a
     is_on = True
     players.clear()
-    await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
-    uid = event.sender_id
-    sender = await event.get_sender()
-    name = sender.first_name
-    if uid not in players:
-        players[uid] = {"username": name}    
-    uid = event.sender_id
-    sender = await event.get_sender()
-    name = sender.first_name
-    if uid not in players:
-        points[name] = {"username": name, "score": 0}    
+    a = 0
+    await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.")
+
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
-    """تسجيل اللاعبين"""
     if is_on:
         uid = event.sender_id
         sender = await event.get_sender()
         name = sender.first_name
+        
         if uid not in players:
             players[uid] = {"username": name}
-            await event.reply('سجلتك بالعبة لتدز مره لخ')
-        else:
-            await event.reply("عزيزي الصديق ضفتك قبل شوية **ميحتاج تدز**")
-            uid = event.sender_id
-            sender = await event.get_sender()
-            name = sender.first_name
-            if uid not in players:
+            if name not in points:
                 points[name] = {"username": name, "score": 0}
+            await event.reply('تم تسجيلك في اللعبة')
+        else:
+            await event.reply("انت مسجل بالفعل في اللعبة")
+
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
-    """عرض قائمة اللاعبين"""
     if is_on:
         if players:
             player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
-            await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
+            await event.reply(f"قائمة اللاعبين:\n{player_list}")
         else:
-            await event.reply('ماكو لاعبين 🙃')
+            await event.reply('لا يوجد لاعبين مسجلين بعد.')
+
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time, a
     if is_on:
-        await event.reply('تم بدء اللعبه انتظر ثواني')
+        await event.reply('تم بدء اللعبه انتظر لحظة')
         await asyncio.sleep(2)
-        answer = random.choice(words)
-        await event.respond(f'✍ اكتب ⤶ `{answer}`')
-        start_time = time.time()
-        for i in range(4):
-             await asyncio.sleep(10)
-             answer = random.choice(words)
-             await event.respond(f'✍ اكتب ⤶ {answer}')
-             start_time = time.time()
-             a +=1
-             pass
+        
+        for i in range(5):
+            answer = random.choice(words)
+            await event.respond(f'اكتب ⤶ `{answer}`')
+            start_time = time.time()
+            await asyncio.sleep(10)
+            
+            if answer is not None:
+                await event.reply('انتهت المدة! للأسف لم يجب أحد.')
+            
+            answer = None
+            a += 1
+        
+        is_on = False
+        points_list = "\n".join([f"{info['username']} - {info['score']} نقطة" for info in points.values()])
+        await event.reply(f"ترتيب اللاعبين بالنقاط:\n{points_list}")
+
 @ABH.on(events.NewMessage)
 async def check(event):
-    """التحقق من الإجابة وإنهاء اللعبة"""
-    global is_on, start_time, answer
+    global is_on, start_time, answer, points
     if not is_on or start_time is None:
         return
+
     elapsed_time = time.time() - start_time
     seconds = int(elapsed_time)
     milliseconds = int((elapsed_time - seconds) * 1000)
     isabh = event.text.strip()
     wid = event.sender_id
+
     if answer and isabh.lower() == answer.lower() and wid in players:
-        await event.reply(f'إجابة صحيحة! أحسنت! الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
-        is_on = True
+        username = players[wid]["username"]
+        points[username]["score"] += 1
+        
+        await event.reply(f'إجابة صحيحة! {username} حصلت على نقطة!\nالوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
         answer = None
         start_time = None
     elif elapsed_time >= 10:
-        await event.reply('انتهت المدة! للأسف لم يجب أحد. 😴')
-        is_on = False
+        await event.reply('انتهت المدة! للأسف لم يجب أحد.')
         answer = None
         start_time = None
-        if a == 5:
-            is_on = False
-            points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in points.items()])
-            await event.reply(f"📊 **ترتيب اللاعبين بالنقاط:**\n{points_list}")            
-        else:
-            True
 
 ABH.run_until_disconnected()

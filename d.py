@@ -96,5 +96,6 @@ async def check(event):
         await event.reply('انتهت المدة! للأسف لم يجب أحد. 😴')
         answer = None
         start_time = None
+        a = 0
 
 ABH.run_until_disconnected()

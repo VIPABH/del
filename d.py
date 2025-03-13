@@ -9,9 +9,7 @@ if not all([api_id, api_hash, bot_token]):
     raise ValueError("الرجاء ضبط المتغيرات البيئية API_ID, API_HASH, و BOT_TOKEN")
 
 ABH = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
-points = [
-
-]
+res = {}
 a = 0
 players = {}
 answer = None
@@ -38,9 +36,8 @@ async def start_s(event):
         players[uid] = {"username": name}    
     uid = event.sender_id
     sender = await event.get_sender()
-    name = sender.first_name
     if uid not in players:
-        points[name] = {"username": name, "score": 0}    
+        res[name] = { "name": name, "score": 0}    
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
     """تسجيل اللاعبين"""
@@ -57,7 +54,7 @@ async def sign_in(event):
             sender = await event.get_sender()
             name = sender.first_name
             if uid not in players:
-                points[name] = {"username": name, "score": 0}
+                res[name] = { "name": name, "score": 0}    
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
     """عرض قائمة اللاعبين"""
@@ -96,7 +93,7 @@ async def check(event):
     wid = event.sender_id
 
     if answer and isabh.lower() == answer.lower() and wid in players:
-        await event.reply(f'✅ إجابة صحيحة! أحسنت! ⏱️ الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
+        await event.reply(f'إجابة صحيحة! أحسنت الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
         is_on = True 
         answer = None
         start_time = None
@@ -107,7 +104,7 @@ async def check(event):
         start_time = None
         if a == 5:
             is_on = False
-            points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in points.items()])
-            await event.reply(f"📊 **ترتيب اللاعبين بالنقاط:**\n{points_list}")            
+            points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in res.items()])
+            await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")            
 
 ABH.run_until_disconnected()

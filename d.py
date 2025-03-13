@@ -26,32 +26,31 @@ async def start_s(event):
     await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
     uid = event.sender_id
     sender = await event.get_sender()
-    name = sender.first_name
+    username = sender.first_name
     if uid not in players:
-        players[uid] = {"username": name}    
+        players[uid] = {"username": username}    
     uid = event.sender_id
     sender = await event.get_sender()
-    name = sender.first_name
     if uid not in players:
-        points[name] = {"username": name, "score": 0}
+        points[username] = {"username": username, "score": 0}
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
     if is_on:
         uid = event.sender_id
         sender = await event.get_sender()
-        name = sender.first_name
+        username = sender.first_name
         if uid not in players:
-            players[uid] = {"username": name}
-            if name not in points:
-                points[name] = {"username": name, "score": 0}
+            players[uid] = {"username": username}
+            if username not in points:
+                points[username] = {"username": username, "score": 0}
             await event.reply('سجلتك بالعبة لتدز مره لخ')
         else:
             await event.reply("عزيزي الصديق ضفتك قبل شوية **ميحتاج تدز**")
             uid = event.sender_id
             sender = await event.get_sender()
-            name = sender.first_name
+            username = sender.first_name
             if uid not in players:
-                points[name] = {"username": name, "score": 0}
+                points[username] = {"username": username, "score": 0}
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
     if is_on:

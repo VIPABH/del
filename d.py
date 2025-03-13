@@ -24,9 +24,9 @@ async def start_s(event):
     is_on = True
     players.clear()
     await event.reply("تم بدء لعبة اسرع \nأرسل `انا` لدخول اللعبة أو `تم` للبدء.\n**ENJOY BABY✌**")
+    sender = await event.get_sender()
     uid = event.sender_id
     username = sender.first_name    
-    sender = await event.get_sender()
     if uid not in players:
         points[username] = {"username": username, "score": 0}
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))

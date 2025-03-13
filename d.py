@@ -96,7 +96,6 @@ async def check(event):
     wid = event.sender_id
     if answer and isabh.lower() == answer.lower() and wid in players:
         await event.reply(f'إجابة صحيحة! أحسنت! الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
-        uname = event.first_name
         is_on = True
         answer = None
         start_time = None

@@ -16,6 +16,7 @@ answer = None
 is_on = False
 join_on = False
 start_time = None
+done = False
 words = [
     'علي', 'حميد', 'العظيم', 'المجيد', 'مهندس', 'لاعب', 'صانع', 'كلمة',
     'مفردة', 'مبارك', 'مبرمج', 'الاول', 'مؤول', 'سميع', 'رحمن', 'طالب',
@@ -62,8 +63,10 @@ async def players_show(event):
 async def start_f(event):
     global answer, is_on, start_time, join_on
     join_on = False
-    if is_on:
+    done = False
+    if is_on and done and players:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
+        done = True
         await asyncio.sleep(2)
         for _ in range(5):
             answer = random.choice(words)
@@ -71,6 +74,7 @@ async def start_f(event):
             start_time = time.time()
             await asyncio.sleep(10)
         is_on = False
+        done = False
         points_list = "\n".join([f"{info['name']} - {info['score']} نقطة" for info in res.values()])
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
 @ABH.on(events.NewMessage)

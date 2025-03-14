@@ -64,7 +64,7 @@ async def start_f(event):
     global answer, is_on, start_time, join_on
     join_on = False
     done = False
-    if is_on and done and players:
+    if is_on and done:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
         done = True
         await asyncio.sleep(2)

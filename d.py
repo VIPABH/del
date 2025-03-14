@@ -33,8 +33,6 @@ async def start_s(event):
          await event.reply("اهلاً ضفتك للعبة , للانضمام ارسل `انا` للبدء `تم` \n**ENJOY BABY✌**")
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
-    global join_on
-    join_on = True
     if is_on:
         uid = event.sender_id
         sender = await event.get_sender()
@@ -58,8 +56,8 @@ async def players_show(event):
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time, join_on
-    join_on = False
-    done = False
+    join_on = True
+    done = True
     if is_on and done and players:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
         done = True
@@ -90,7 +88,7 @@ async def check(event):
             res[username] = {"name": username, "score": 0}
         res[username]["score"] += 1
         await event.reply(f'إجابة صحيحة! أحسنت الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
-        is_on = True
+        is_on = False
         answer = None
         start_time = None
     elif elapsed_time >= 10:

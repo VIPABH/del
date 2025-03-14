@@ -47,6 +47,7 @@ async def sign_in(event):
             await event.reply("عزيزي الصديق، سجلتك والله!")
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
+    global is_on
     if is_on and players:
         player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
         await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")

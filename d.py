@@ -14,6 +14,7 @@ a = 0
 players = {}
 answer = None
 is_on = False
+join_on = False
 start_time = None
 words = [
     'علي', 'حميد', 'العظيم', 'المجيد', 'مهندس', 'لاعب', 'صانع', 'كلمة',
@@ -30,8 +31,9 @@ async def start_s(event):
     await event.reply("تم بدء لعبة اسرع \nأرسل 'انا' لدخول اللعبة أو 'تم' للبدء.\n**ENJOY BABY✌**")
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
-    """تسجيل اللاعبين"""
-    if is_on:
+    global join_on
+    join_on = True
+    if is_on and join_on:
         uid = event.sender_id
         sender = await event.get_sender()
         name = sender.first_name
@@ -40,7 +42,7 @@ async def sign_in(event):
             res[name] = {"name": name, "score": 0}
             await event.reply('سجلتك باللعبة، لا ترسل مجددًا!')
         else:
-            await event.reply("عزيزي الصديق، أنت مسجل بالفعل! **لا حاجة للإرسال مجددًا**")
+            await event.reply("عزيزي الصديق، سجلتك والله!")
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
     """عرض قائمة اللاعبين"""
@@ -53,6 +55,7 @@ async def players_show(event):
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time
+    join_on = False
     if is_on:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
         await asyncio.sleep(2)
@@ -66,7 +69,7 @@ async def start_f(event):
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
 @ABH.on(events.NewMessage)
 async def check(event):
-    """التحقق من الإجابة وإنهاء اللعبة"""
+    join_on = False
     global is_on, start_time, answer, a
     if not is_on or start_time is None:
         return
@@ -91,6 +94,6 @@ async def check(event):
         start_time = None
         if a == 5:
             is_on = False
-            points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in res.items()])
+            points_list = "\n".join([f"{pid} -> {info['score']} نقطة" for pid, info in res.items()])
             await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
 ABH.run_until_disconnected()

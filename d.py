@@ -10,7 +10,6 @@ if not all([api_id, api_hash, bot_token]):
 
 ABH = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 res = {}
-a = 0
 players = {}
 answer = None
 is_on = False
@@ -56,7 +55,7 @@ async def players_show(event):
 
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
-    global answer, is_on, start_time, a
+    global answer, is_on, start_time
     if is_on:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
         await asyncio.sleep(2)
@@ -66,12 +65,10 @@ async def start_f(event):
             await event.respond(f'✍ اكتب ⤶ {answer}')
             start_time = time.time()
             await asyncio.sleep(10)
-            a += 1
 
         is_on = False
         points_list = "\n".join([f"{info['name']} - {info['score']} نقطة" for info in res.values()])
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
-        a = 0
 
 @ABH.on(events.NewMessage)
 async def check(event):
@@ -96,6 +93,5 @@ async def check(event):
         await event.reply('انتهت المدة! للأسف لم يجب أحد. 😴')
         answer = None
         start_time = None
-        a = 0
 
 ABH.run_until_disconnected()

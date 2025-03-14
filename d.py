@@ -73,25 +73,36 @@ async def start_f(event):
 @ABH.on(events.NewMessage)
 async def check(event):
     """التحقق من الإجابة وإنهاء اللعبة"""
-    global is_on, start_time, answer
+    global is_on, start_time, answer, a
     if not is_on or start_time is None:
         return
-    
     elapsed_time = time.time() - start_time
     seconds = int(elapsed_time)
     milliseconds = int((elapsed_time - seconds) * 1000)
-    user_text = event.text.strip()
-    uid = event.sender_id
+    isabh = event.text.strip()
+    wid = event.sender_id
 
-    if answer and user_text.lower() == answer.lower() and uid in players:
-        username = players[uid]["username"]
+    if answer and isabh.lower() == answer.lower() and wid in players:
+        username = players[wid]["username"]
+
+        if username not in res:
+            res[username] = {"name": username, "score": 0}
+
         res[username]["score"] += 1
-        await event.reply(f'إجابة صحيحة! أحسنت! الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
+
+        await event.reply(f'إجابة صحيحة! أحسنت الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
+        is_on = True
         answer = None
         start_time = None
     elif elapsed_time >= 10:
-        await event.reply('انتهت المدة! للأسف لم يجب أحد. 😴')
+        await event.reply(' انتهت المدة! للأسف لم يجب أحد. 😴')
+        is_on = False
         answer = None
         start_time = None
+        if a == 5:
+            is_on = False
+            points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in res.items()])
+            await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
+
 
 ABH.run_until_disconnected()

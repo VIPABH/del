@@ -63,10 +63,9 @@ async def players_show(event):
 async def start_f(event):
     global answer, is_on, start_time, join_on
     join_on = False
-    done = False
+    done = True
     if is_on and done:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
-        done = True
         await asyncio.sleep(2)
         for _ in range(5):
             answer = random.choice(words)
@@ -77,6 +76,7 @@ async def start_f(event):
         done = False
         points_list = "\n".join([f"{info['name']} - {info['score']} نقطة" for info in res.values()])
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
+        done = False
 @ABH.on(events.NewMessage)
 async def check(event):
     global is_on, start_time, answer, a, join_on

@@ -28,7 +28,13 @@ async def start_s(event):
     global is_on, players
     is_on = True
     players.clear()
-    await event.reply("تم بدء لعبة اسرع \nأرسل 'انا' لدخول اللعبة أو 'تم' للبدء.\n**ENJOY BABY✌**")
+    uid = event.sender_id
+    sender = await event.get_sender()
+    name = sender.first_name
+    if uid not in players:
+         players[uid] = {"username": name}
+         res[name] = {"name": name, "score": 0}
+         await event.reply("اهلاً ضفتك للعبة , للانضمام ارسل `انا` للبدء `تم` \n**ENJOY BABY✌**")
 @ABH.on(events.NewMessage(pattern="(?i)انا$"))
 async def sign_in(event):
     global join_on
@@ -50,8 +56,10 @@ async def players_show(event):
         if players:
             player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
             await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
+            is_on = True
         else:
             await event.reply('ماكو لاعبين 🙃')
+            is_on = False
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time
@@ -88,7 +96,6 @@ async def check(event):
         answer = None
         start_time = None
     elif elapsed_time >= 10:
-        await event.reply(' انتهت المدة! للأسف لم يجب أحد. 😴')
         is_on = False
         answer = None
         start_time = None

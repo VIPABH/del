@@ -54,7 +54,7 @@ async def players_show(event):
         is_on = True
     else:
         await event.reply('ماكو لاعبين 🙃')
-        is_on = False
+        # is_on = False
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time, join_on

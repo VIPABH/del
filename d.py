@@ -35,7 +35,7 @@ async def start_s(event):
 async def sign_in(event):
     global join_on
     join_on = True
-    if is_on and join_on:
+    if is_on:
         uid = event.sender_id
         sender = await event.get_sender()
         name = sender.first_name
@@ -54,7 +54,7 @@ async def players_show(event):
         is_on = True
     else:
         await event.reply('ماكو لاعبين 🙃')
-        # is_on = False
+        is_on = False
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
     global answer, is_on, start_time, join_on

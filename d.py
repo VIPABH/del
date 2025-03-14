@@ -18,6 +18,7 @@ is_on = False
 join_on = False
 start_time = None
 done = False
+
 @ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
 async def start_s(event):
     """بدء اللعبة والإعلان عنها"""
@@ -63,7 +64,8 @@ async def start_f(event):
         done = True
         await asyncio.sleep(2)
         for _ in range(5):
-            answer = Faker("ar_AA")
+            word = Faker("ar_AA")
+            answer = (word)
             await event.respond(f'✍ اكتب ⤶ {answer}')
             start_time = time.time()
             await asyncio.sleep(10)

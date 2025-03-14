@@ -51,18 +51,16 @@ async def sign_in(event):
             await event.reply("عزيزي الصديق، سجلتك والله!")
 @ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
 async def players_show(event):
-    """عرض قائمة اللاعبين"""
-    if is_on:
-        if players:
-            player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
-            await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
-            is_on = True
-        else:
-            await event.reply('ماكو لاعبين 🙃')
-            is_on = False
+    if is_on and players:
+        player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
+        await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
+        is_on = True
+    else:
+        await event.reply('ماكو لاعبين 🙃')
+        is_on = False
 @ABH.on(events.NewMessage(pattern="(?i)تم$"))
 async def start_f(event):
-    global answer, is_on, start_time
+    global answer, is_on, start_time, join_on
     join_on = False
     if is_on:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
@@ -77,8 +75,8 @@ async def start_f(event):
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
 @ABH.on(events.NewMessage)
 async def check(event):
+    global is_on, start_time, answer, a, join_on
     join_on = False
-    global is_on, start_time, answer, a
     if not is_on or start_time is None:
         return
     elapsed_time = time.time() - start_time

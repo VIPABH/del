@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events
 import os, asyncio, random, time
+from faker import Faker 
 
 api_id = os.getenv("API_ID")
 api_hash = os.getenv("API_HASH")
@@ -17,12 +18,6 @@ is_on = False
 join_on = False
 start_time = None
 done = False
-words = [
-    'علي', 'حميد', 'العظيم', 'المجيد', 'مهندس', 'لاعب', 'صانع', 'كلمة',
-    'مفردة', 'مبارك', 'مبرمج', 'الاول', 'مؤول', 'سميع', 'رحمن', 'طالب',
-    'بطريق', 'سمع', 'يذهب', 'يعود', 'يقود', 'يرى', 'يكتب', 'الاسرع', 'كود',
-    'نمط', 'تشغيل', 'خط', 'تاريخ', 'وقت', 'تجربة', 'جوهري', 'قاعدة', 'هروب',
-]
 @ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
 async def start_s(event):
     """بدء اللعبة والإعلان عنها"""
@@ -63,12 +58,13 @@ async def players_show(event):
 async def start_f(event):
     global answer, is_on, start_time, join_on
     join_on = False
-    done = True
-    if is_on and done:
+    done = False
+    if is_on and done and players:
         await event.reply('تم بدء اللعبة، انتظر ثواني...')
+        done = True
         await asyncio.sleep(2)
         for _ in range(5):
-            answer = random.choice(words)
+            answer = Faker("ar_AA")
             await event.respond(f'✍ اكتب ⤶ {answer}')
             start_time = time.time()
             await asyncio.sleep(10)
@@ -76,7 +72,6 @@ async def start_f(event):
         done = False
         points_list = "\n".join([f"{info['name']} - {info['score']} نقطة" for info in res.values()])
         await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
-        done = False
 @ABH.on(events.NewMessage)
 async def check(event):
     global is_on, start_time, answer, a, join_on

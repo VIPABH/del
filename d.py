@@ -93,15 +93,8 @@ async def check(event):
     wid = event.sender_id
 
     if answer and isabh.lower() == answer.lower() and wid in players:
-        username = players[wid]["username"]
-
-        if username not in res:
-            res[username] = {"name": username, "score": 0}
-
-        res[username]["score"] += 1
-
         await event.reply(f'إجابة صحيحة! أحسنت الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
-        is_on = True
+        is_on = True 
         answer = None
         start_time = None
     elif elapsed_time >= 10:
@@ -112,6 +105,6 @@ async def check(event):
         if a == 5:
             is_on = False
             points_list = "\n".join([f"{pid} - {info['score']} نقطة" for pid, info in res.items()])
-            await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
+            await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")            
 
 ABH.run_until_disconnected()

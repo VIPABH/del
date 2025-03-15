@@ -1,104 +1,60 @@
 from telethon import TelegramClient, events
-import os, asyncio, random, time
-from faker import Faker 
+import os, asyncio, time
 
 api_id = os.getenv("API_ID")
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("BOT_TOKEN")
-
-if not all([api_id, api_hash, bot_token]):
-    raise ValueError("الرجاء ضبط المتغيرات البيئية API_ID, API_HASH، و BOT_TOKEN")
-
 ABH = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
-res = {}
-a = 0
-players = {}
-answer = None
-is_on = False
-join_on = False
-start_time = None
-done = False
-fake = Faker("ar_AA")
-@ABH.on(events.NewMessage(pattern="(?i)اسرع$"))
-async def start_s(event):
-    """بدء اللعبة والإعلان عنها"""
-    global is_on, players
-    is_on = True
-    players.clear()
-    uid = event.sender_id
-    sender = await event.get_sender()
-    name = sender.first_name
-    if uid not in players:
-         players[uid] = {"username": name}
-         res[name] = {"name": name, "score": 0}
-         await event.reply("اهلاً ضفتك للعبة , للانضمام ارسل `انا` للبدء `تم` \n**ENJOY BABY✌**")
-@ABH.on(events.NewMessage(pattern="(?i)انا$"))
-async def sign_in(event):
-    if is_on:
-        uid = event.sender_id
-        sender = await event.get_sender()
-        name = sender.first_name
-        if uid not in players:
-            players[uid] = {"username": name}
-            res[name] = {"name": name, "score": 0}
-            await event.reply('سجلتك باللعبة، لا ترسل مجددًا!')
-        else:
-            await event.reply("عزيزي الصديق، سجلتك والله!")
-@ABH.on(events.NewMessage(pattern="(?i)الاعبين$"))
-async def players_show(event):
-    global is_on
-    if is_on and players:
-        player_list = "\n".join([f"{pid} - {info['username']}" for pid, info in players.items()])
-        await event.reply(f"📜 قائمة اللاعبين:\n{player_list}")
-        is_on = True
-    else:
-        await event.reply('ماكو لاعبين 🙃')
-        is_on = False
-@ABH.on(events.NewMessage(pattern="(?i)تم$"))
-async def start_f(event):
-    global answer, is_on, start_time, join_on
-    join_on = True
-    done = True
-    if is_on and done and players:
-        await event.reply('تم بدء اللعبة، انتظر ثواني...')
-        done = True
-        await asyncio.sleep(2)
-        for _ in range(5):
-            word = fake.word()
-            answer = (word)
-            await event.respond(f'✍ اكتب ⤶ {answer}')
-            start_time = time.time()
-            await asyncio.sleep(10)
-        is_on = False
-        done = False
-        points_list = "\n".join([f"{info['name']} - {info['score']} نقطة" for info in res.values()])
-        await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
+uinfo = {}
 @ABH.on(events.NewMessage)
-async def check(event):
-    global is_on, start_time, answer, a, join_on
-    join_on = False
-    if not is_on or start_time is None:
+async def msgs(event):
+    global uinfo
+    if event.is_group:
+        uid = event.sender.first_name
+        unm = event.sender_id
+        guid = event.chat_id
+        if unm not in uinfo:
+            uinfo[unm] = {}
+        if guid not in uinfo[unm]:
+            uinfo[unm][guid] = {"guid": guid, "unm": unm, "fname": uid, "msg": 1}
+        else:
+            uinfo[unm][guid]["msg"] += 1
+@ABH.on(events.NewMessage(pattern='توب'))
+async def show_res(event):
+    await asyncio.sleep(2)
+    guid = event.chat_id
+    unm = event.sender_id
+    sorted_users = sorted(uinfo.items(), key=lambda x: x[1][guid]['msg'], reverse=True)[:15]
+    top_users = []
+    for user, data in sorted_users:
+        if guid in data:
+            top_users.append(f"{data[guid][unm]['msg']} رسائل")
+    if top_users:
+        await event.reply("\n".join(top_users))
+    else:
+        await event.reply("لا توجد بيانات لعرضها.")
+@ABH.on(events.NewMessage(pattern='رسائلي'))
+async def show_res(event):
+    await asyncio.sleep(2)
+    uid1 = event.sender.first_name
+    unm1 = event.sender_id
+    guid1 = event.chat_id
+    if unm1 in uinfo and guid1 in uinfo[unm1]:
+        msg_count = uinfo[unm1][guid1]["msg"]
+        await event.reply(f"المستخدم [{uid1}](tg://user?id={unm1}) ارسلت {msg_count} رسالة في هذه المجموعة.")
+@ABH.on(events.NewMessage(pattern='رسائله|رسائلة|رسائل|الرسائل'))
+async def show_res(event):
+    r = await event.get_reply_message()
+    await asyncio.sleep(2)
+    if not r:
         return
-    elapsed_time = time.time() - start_time
-    seconds = int(elapsed_time)
-    milliseconds = int((elapsed_time - seconds) * 1000)
-    isabh = event.text.strip()
-    wid = event.sender_id
-    if answer and isabh.lower() == answer.lower() and wid in players:
-        username = players[wid]["username"]
-        if username not in res:
-            res[username] = {"name": username, "score": 0}
-        res[username]["score"] += 1
-        await event.reply(f'إجابة صحيحة! أحسنت الوقت المستغرق: {seconds} ثانية و {milliseconds} مللي ثانية.')
-        is_on = False
-        answer = None
-        start_time = None
-    elif elapsed_time >= 10:
-        is_on = False
-        answer = None
-        start_time = None
-        if a == 5:
-            is_on = False
-            points_list = "\n".join([f"{pid} -> {info['score']} نقطة" for pid, info in res.items()])
-            await event.reply(f"**ترتيب اللاعبين بالنقاط**\n{points_list}")
+    uid1 = r.sender.first_name
+    unm1 = r.sender_id
+    guid1 = event.chat_id
+    if unm1 in uinfo and guid1 in uinfo[unm1]:
+        msg_count = uinfo[unm1][guid1]["msg"]
+        await event.reply(f"المستخدم [{uid1}](tg://user?id={unm1}) أرسل {msg_count} رسالة في هذه المجموعة.")
+@ABH.on(events.NewMessage(pattern='/الرسائل'))
+async def title(event):
+    await event.reply('اهلا صديقي , اوامر الرسائل \n ارسل `توب` ل اضهار توب 15 تفاعل \n ارسل `رسائلي` ل اضهار رسائلك في اخر يوم \n ارسل `رسائله` ل اضهار رساله الشخص بالرد \n استمتع')
 ABH.run_until_disconnected()

@@ -3,7 +3,7 @@ from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantEr
 from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import InputUser
-
+import os
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH') 
 # قائمة معرفات البوتات (بالأرقام)

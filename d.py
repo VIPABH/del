@@ -4,7 +4,7 @@ import os
 API_ID = os.getenv('API_ID')
 API_HASH = os.getenv('API_HASH')
 PHONE_NUMBER = "+964 770 598 4153"
-client = TelegramClient('session_name', api_id, api_hash)
+client = TelegramClient('session_name', API_ID, API_HASH)
 
 @client.on(events.NewMessage(pattern='/add_bot'))
 async def add_bot_to_group(event):

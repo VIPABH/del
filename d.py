@@ -31,7 +31,7 @@ async def add_bots(event):
     # استخدام bot_usernames بدلاً من bot_ids
     for bot_username in bot_usernames:
         try:
-            user_full = await bot(GetFullUserRequest(bot_username))  # جلب معلومات البوت
+            user_full = await bot(GetFullUserRequest("@VIPABH_BOT"))  # جلب معلومات البوت
             user = user_full.user  # الوصول إلى المستخدم من UserFull
 
             # التأكد من أن المستخدم هو بوت وليس حساب شخصي

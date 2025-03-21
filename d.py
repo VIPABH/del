@@ -1,52 +1,36 @@
 from telethon import TelegramClient, events
-from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.functions.messages import AddChatUserRequest
-import os
 
-API_ID = os.getenv('API_ID')  # تأكد من تعيين API_ID في البيئة الخاصة بك
-API_HASH = os.getenv('API_HASH')  # تأكد من تعيين API_HASH في البيئة الخاصة بك
-PHONE_NUMBER = "+964 770 598 4153"  # رقم هاتفك
+api_id = 'YOUR_API_ID'  # ضع الـ API ID هنا
+api_hash = 'YOUR_API_HASH'  # ضع الـ API HASH هنا
+phone_number = 'YOUR_PHONE_NUMBER'  # ضع رقم هاتفك هنا
 
-client = TelegramClient('session_name', API_ID, API_HASH)
+client = TelegramClient('session_name', api_id, api_hash)
 
 @client.on(events.NewMessage(pattern='/add_bot'))
 async def add_bot_to_group(event):
-    # استخراج النص بعد الأمر
-    message = event.message.text.strip()
-    parts = message.split()
-
-    # تحقق من وجود الأجزاء المطلوبة: الأمر واسم البوت
-    if len(parts) < 2:
-        await event.reply('يجب عليك كتابة اسم البوت بعد الأمر /add_bot.')
+    # الحصول على اسم البوت وID المجموعة من الرسالة
+    message = event.message.text.split()
+    
+    if len(message) < 3:
+        await event.reply('يجب أن تكتب اسم البوت وID المجموعة بعد الأمر /add_bot')
         return
-
-    # استخراج اسم البوت من الرسالة
-    bot_username = parts[1]  # سيتم أخذ اسم البوت من الرسالة
-    group_id = event.chat_id  # استخدام ID المجموعة التي تم فيها إرسال الرسالة
+    
+    bot_username = message[1]  # أول كلمة بعد الأمر هي اسم البوت
+    group_id = message[2]  # ثاني كلمة بعد الأمر هي ID المجموعة
 
     try:
         # الحصول على معلومات البوت
         bot = await client.get_entity(bot_username)
         
-        # الحصول على معلومات المحادثة (المجموعة أو القناة)
-        chat = await client.get_entity(group_id)
+        # إضافة البوت إلى المجموعة
+        await client(AddChatUserRequest(
+            chat_id=group_id,
+            user_id=bot.id,
+            fwd_limit=10  # عدد الرسائل التي يمكن إعادة توجيهها من البوت
+        ))
 
-        # إذا كانت المحادثة من نوع قناة أو مجموعة ضخمة (MegaGroup)، نستخدم InviteToChannelRequest
-        if hasattr(chat, 'megagroup') and (chat.megagroup or chat.broadcast):  # إذا كانت قناة أو مجموعة ضخمة (MegaGroup)
-            await client(InviteToChannelRequest(
-                channel=group_id,
-                users=[bot.id]  # إضافة البوت إلى القناة أو المجموعة
-            ))
-            await event.reply(f'تمت دعوة البوت {bot_username} إلى القناة أو المجموعة بنجاح!')
-        else:
-            # إذا كانت محادثة عادية (Group)، نستخدم AddChatUserRequest
-            await client(AddChatUserRequest(
-                chat_id=group_id,
-                user_id=bot.id,
-                fwd_limit=10  # عدد الرسائل التي يمكن إعادة توجيهها من البوت
-            ))
-            await event.reply(f'تمت إضافة البوت {bot_username} إلى المجموعة بنجاح!')
-
+        await event.reply(f'تمت إضافة البوت {bot_username} إلى المجموعة بنجاح!')
     except Exception as e:
         await event.reply(f'حدث خطأ أثناء إضافة البوت: {e}')
 

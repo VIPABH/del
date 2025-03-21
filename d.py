@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
 from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError
 from telethon.tl.functions.channels import InviteToChannelRequest
+from telethon.tl.types import InputPeerChannel
 import os
 
 # بيانات تسجيل الدخول
@@ -31,7 +32,9 @@ async def add_bots(event):
     for bot_username in bot_usernames:
         try:
             user = await bot.get_entity(bot_username)  # جلب معلومات البوت باستخدام @username
-            await bot(InviteToChannelRequest(chat, [user]))  # دعوة البوت للمجموعة
+            # استخدام InputPeerChannel بدلاً من InputPeerChat
+            input_channel = InputPeerChannel(chat.id, chat.access_hash)  # تحويل إلى InputPeerChannel
+            await bot(InviteToChannelRequest(input_channel, [user]))  # دعوة البوت للمجموعة
             added_count += 1
         except UserAlreadyParticipantError:
             failed_bots.append(f"⚠️ البوت {bot_username} موجود بالفعل.")

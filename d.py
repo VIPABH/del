@@ -1,3 +1,4 @@
+import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.functions.messages import AddChatUserRequest
@@ -15,7 +16,7 @@ bot_usernames = [
     '@Httttghgttbot', '@Hshshjejeiiiiibot', '@Gagaggshbot',
     '@Audueysabot', '@Jajshshhdbot', '@Huqisijshnhbbbot',
     '@Usuydhbbot', '@Udiehsjjdjdbbot', '@Usuwuwheuufbot',
-    '@Bsbxxbdbabsbbot', '@Jajsjjbbbot', '@Jajajjbbbot',
+    '@Bsbxxbdbabsbbbot', '@Jajsjjbbbot', '@Jajajjbbbot',
     '@TT_TABOT', '@Hushsyhbot', '@Viphashbot',
     '@KiwetBOT', '@Hauehshbot', '@Ttoothbot',
     '@Jajajajjjbot', '@Abnhashbot'
@@ -34,14 +35,19 @@ async def add_bot_to_chat(event):
         for bot_username in bot_usernames:
             try:
                 bot = await client.get_entity(bot_username)
-                
-                if is_channel:  # إذا كان الهدف قناة
+
+                if is_channel:
                     await client(InviteToChannelRequest(chat_id, [bot.id]))
-                else:  # إذا كان الهدف مجموعة
+                else:
                     await client(AddChatUserRequest(chat_id, bot.id, fwd_limit=10))
                 
                 success_list.append(bot_username)
+                await asyncio.sleep(5)  # تأخير 5 ثواني بين كل محاولة لتجنب الحظر
+                
             except Exception as bot_error:
+                if "A wait of" in str(bot_error):
+                    wait_time = int("".join(filter(str.isdigit, str(bot_error))))
+                    await asyncio.sleep(wait_time + 5)  # الانتظار حسب المدة المطلوبة قبل المتابعة
                 failed_list.append(f"{bot_username} ({bot_error})")
 
         response = "✅ تمت إضافة البوتات بنجاح:\n" + "\n".join(success_list) if success_list else "❌ لم يتم إضافة أي بوت."

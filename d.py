@@ -4,9 +4,8 @@ from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import InputUser
 import os
-api_id = os.getenv('API_ID')      
-api_hash = os.getenv('API_HASH') 
-# قائمة معرفات البوتات (بالأرقام)
+API_ID = os.getenv('API_ID')      
+API_HASH = os.getenv('API_HASH') 
 bot_ids = [7908156943, 1910015590]
 
 # إنشاء العميل (تسجيل الدخول عبر رقم الهاتف)

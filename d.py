@@ -1,9 +1,10 @@
 from telethon import TelegramClient, events
-from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError
+from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError, FloodWaitError
 from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import InputUser
 import os
+import asyncio  # استيراد مكتبة asyncio لتأخير غير متزامن
 
 API_ID = os.getenv('API_ID')      
 API_HASH = os.getenv('API_HASH')
@@ -32,6 +33,12 @@ async def add_bots(event):
         try:
             user_full = await bot(GetFullUserRequest(bot_username))  # جلب معلومات البوت
             user = user_full.user  # الوصول إلى المستخدم من UserFull
+
+            # التأكد من أن المستخدم هو بوت وليس حساب شخصي
+            if not user.bot:
+                failed_bots.append(f"⛔ {bot_username} ليس بوتًا.")
+                continue
+
             input_user = InputUser(user.id, user.access_hash)  # تحويله إلى كائن مستخدم
             await bot(InviteToChannelRequest(chat, [input_user]))  # دعوة البوت للمجموعة
             added_count += 1
@@ -40,7 +47,20 @@ async def add_bots(event):
         except UserPrivacyRestrictedError:
             failed_bots.append(f"⛔ لا يمكن إضافة {bot_username} (إعدادات الخصوصية).")
         except RpcCallFailError:
-            failed_bots.append(f"🚫 فشل استدعاء API عند محاولة إضافة {bot_username}.")
+            # محاولة إعادة استدعاء API بعد تأخير باستخدام asyncio
+            failed_bots.append(f"🚫 فشل استدعاء API عند محاولة إضافة {bot_username}. سيتم المحاولة مرة أخرى.")
+            await asyncio.sleep(2)  # تأخير غير متزامن قبل المحاولة مرة أخرى
+            try:
+                user_full = await bot(GetFullUserRequest(bot_username))  # إعادة المحاولة لجلب معلومات البوت
+                user = user_full.user
+                input_user = InputUser(user.id, user.access_hash)
+                await bot(InviteToChannelRequest(chat, [input_user]))  # دعوة البوت للمجموعة
+                added_count += 1
+            except Exception as e:
+                failed_bots.append(f"❌ فشل في إضافة {bot_username} بعد المحاولة الثانية: {str(e)}")
+        except FloodWaitError as e:
+            failed_bots.append(f"⏳ هناك انتظار لعدة دقائق بسبب كثرة الطلبات: {e.seconds} ثانية.")
+            await asyncio.sleep(e.seconds)  # الانتظار بناءً على الوقت المقدر
         except Exception as e:
             failed_bots.append(f"❌ خطأ في {bot_username}: {str(e)}")
 

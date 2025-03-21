@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import AddChatUserRequest
-
+import os 
 API_ID = os.getenv('API_ID')
 API_HASH = os.getenv('API_HASH')
 PHONE_NUMBER = "+964 770 598 4153"
@@ -18,7 +18,7 @@ async def add_bot_to_group(event):
         return
 
     # استخراج اسم البوت من الرسالة
-    bot_username = parts[1]  # البوت الذي سيتم إضافته
+    bot_username = "@VIPABH_BOT"  # البوت الذي سيتم إضافته
     group_id = event.chat_id  # استخدام ID المجموعة التي تم فيها إرسال الرسالة
 
     try:

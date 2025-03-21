@@ -1,13 +1,17 @@
 from telethon import TelegramClient, events
 from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError
 from telethon.tl.functions.channels import InviteToChannelRequest
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import InputUser
 import os
-API_ID = os.getenv('API_ID')      
-API_HASH = os.getenv('API_HASH')
-PHONE_NUMBER =  "+964 770 598 4153"
-bot_id = ["@VIPABH_BOT", "@D7Bot"]
+
+# بيانات تسجيل الدخول
+API_ID = int(os.getenv('API_ID', 123456))  # استبدل 123456 بـ API_ID الحقيقي
+API_HASH = os.getenv('API_HASH', 'your_api_hash_here')  # استبدل 'your_api_hash_here' بـ API_HASH الحقيقي
+PHONE_NUMBER = "+9647705984153"  # رقم الهاتف بدون مسافات
+
+# قائمة أسماء المستخدمين للبوتات
+bot_usernames = ["@VIPABH_BOT", "@D7Bot"]  
+
+# إنشاء العميل (تسجيل الدخول عبر رقم الهاتف)
 bot = TelegramClient("user_session", API_ID, API_HASH)
 
 async def main():
@@ -24,20 +28,19 @@ async def add_bots(event):
     added_count = 0
     failed_bots = []
 
-    for bot_id in bot_ids:
+    for bot_username in bot_usernames:
         try:
-            user = await bot(GetFullUserRequest(str(bot_id)))  # جلب معلومات البوت
-            input_user = InputUser(user.user.id, user.user.access_hash)  # تحويله إلى كائن مستخدم
-            await bot(InviteToChannelRequest(chat, [input_user]))  # دعوة البوت للمجموعة
+            user = await bot.get_entity(bot_username)  # جلب معلومات البوت باستخدام @username
+            await bot(InviteToChannelRequest(chat, [user]))  # دعوة البوت للمجموعة
             added_count += 1
         except UserAlreadyParticipantError:
-            failed_bots.append(f"⚠️ البوت {bot_id} موجود بالفعل.")
+            failed_bots.append(f"⚠️ البوت {bot_username} موجود بالفعل.")
         except UserPrivacyRestrictedError:
-            failed_bots.append(f"⛔ لا يمكن إضافة {bot_id} (إعدادات الخصوصية).")
+            failed_bots.append(f"⛔ لا يمكن إضافة {bot_username} (إعدادات الخصوصية).")
         except RpcCallFailError:
-            failed_bots.append(f"🚫 فشل استدعاء API عند محاولة إضافة {bot_id}.")
+            failed_bots.append(f"🚫 فشل استدعاء API عند محاولة إضافة {bot_username}.")
         except Exception as e:
-            failed_bots.append(f"❌ خطأ في {bot_id}: {str(e)}")
+            failed_bots.append(f"❌ خطأ في {bot_username}: {str(e)}")
 
     if added_count > 0:
         await event.reply(f"✅ تم إضافة {added_count} بوتات بنجاح!")

@@ -1,9 +1,8 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import AddChatUserRequest
 
-api_id = 'YOUR_API_ID'  # ضع الـ API ID هنا
-api_hash = 'YOUR_API_HASH'  # ضع الـ API HASH هنا
-phone_number = 'YOUR_PHONE_NUMBER'  # ضع رقم هاتفك هنا
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
 
 client = TelegramClient('session_name', api_id, api_hash)
 

@@ -11,9 +11,9 @@ bot_ids = [7908156943, 1910015590]
 # إنشاء العميل (تسجيل الدخول عبر رقم الهاتف)
 bot = TelegramClient("user_session", API_ID, API_HASH)
 
-async def main():
-    await bot.start(PHONE_NUMBER)  # تسجيل الدخول برقم الهاتف
-    print("✅ تم تسجيل الدخول بنجاح!")
+# async def main():
+#     await bot.start(PHONE_NUMBER)  # تسجيل الدخول برقم الهاتف
+#     print("✅ تم تسجيل الدخول بنجاح!")
 
 @bot.on(events.NewMessage(pattern="/addbots"))
 async def add_bots(event):

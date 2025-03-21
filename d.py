@@ -5,8 +5,8 @@ from telethon.tl.types import InputPeerChannel
 import os
 
 # بيانات تسجيل الدخول
-API_ID = int(os.getenv('API_ID', 123456))  # استبدل 123456 بـ API_ID الحقيقي
-API_HASH = os.getenv('API_HASH', 'your_api_hash_here')  # استبدل 'your_api_hash_here' بـ API_HASH الحقيقي
+API_ID = int(os.getenv('API_ID'))  # استبدل 123456 بـ API_ID الحقيقي
+API_HASH = os.getenv('API_HASH')  # استبدل 'your_api_hash_here' بـ API_HASH الحقيقي
 PHONE_NUMBER = "+9647705984153"  # رقم الهاتف بدون مسافات
 
 # قائمة أسماء المستخدمين للبوتات

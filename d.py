@@ -7,8 +7,7 @@ import os
 API_ID = os.getenv('API_ID')      
 API_HASH = os.getenv('API_HASH')
 PHONE_NUMBER =  "+964 770 598 4153"
-bot_ids = [7908156943, 1910015590]
-
+bot_usernames = ["@VIPABH_BOT", "@D7Bot"]
 # إنشاء العميل (تسجيل الدخول عبر رقم الهاتف)
 bot = TelegramClient("user_session", API_ID, API_HASH)
 

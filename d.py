@@ -1,6 +1,8 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import AddChatUserRequest
+from telethon.tl.functions.channels import InviteToChannelRequest
 import os
+
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 
@@ -22,14 +24,18 @@ async def add_bot_to_group(event):
         # الحصول على معلومات البوت
         bot = await client.get_entity(bot_username)
         
-        # إضافة البوت إلى المجموعة
-        await client(AddChatUserRequest(
-            chat_id=group_id,
-            user_id=bot.id,
-            fwd_limit=10  # عدد الرسائل التي يمكن إعادة توجيهها من البوت
-        ))
+        # الحصول على معلومات المحادثة (المجموعة أو القناة)
+        chat = await client.get_entity(group_id)
+        
+        # إذا كانت المحادثة من نوع قناة أو مجموعة ضخمة (MegaGroup)، نستخدم InviteToChannelRequest
+        if hasattr(chat, 'megagroup') and chat.megagroup:
+            await client(InviteToChannelRequest(channel=group_id, users=[bot.id]))
+            await event.reply(f'تمت دعوة البوت {bot_username} إلى القناة أو المجموعة بنجاح!')
+        else:
+            # إضافة البوت إلى مجموعة عادية
+            await client(AddChatUserRequest(chat_id=group_id, user_id=bot.id, fwd_limit=10))
+            await event.reply(f'تمت إضافة البوت {bot_username} إلى المجموعة بنجاح!')
 
-        await event.reply(f'تمت إضافة البوت {bot_username} إلى المجموعة بنجاح!')
     except Exception as e:
         await event.reply(f'حدث خطأ أثناء إضافة البوت: {e}')
 

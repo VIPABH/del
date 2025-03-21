@@ -30,8 +30,9 @@ async def add_bots(event):
     # استخدام bot_usernames بدلاً من bot_ids
     for bot_username in bot_usernames:
         try:
-            user = await bot(GetFullUserRequest(bot_username))  # جلب معلومات البوت
-            input_user = InputUser(user.user.id, user.user.access_hash)  # تحويله إلى كائن مستخدم
+            user_full = await bot(GetFullUserRequest(bot_username))  # جلب معلومات البوت
+            user = user_full.user  # الوصول إلى المستخدم من UserFull
+            input_user = InputUser(user.id, user.access_hash)  # تحويله إلى كائن مستخدم
             await bot(InviteToChannelRequest(chat, [input_user]))  # دعوة البوت للمجموعة
             added_count += 1
         except UserAlreadyParticipantError:

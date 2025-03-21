@@ -1,47 +1,40 @@
 from telethon import TelegramClient, events
-from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError, FloodWaitError
-from telethon.tl.functions.channels import InviteToChannelRequest
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import InputUser
-import os
-import asyncio
+from telethon.tl.functions.messages import AddChatUserRequest
 
 API_ID = os.getenv('API_ID')
 API_HASH = os.getenv('API_HASH')
 PHONE_NUMBER = "+964 770 598 4153"
-bot_usernames = ["@VIPABH_BOT"]
+client = TelegramClient('session_name', api_id, api_hash)
 
-bot = TelegramClient("user_session", API_ID, API_HASH)
+@client.on(events.NewMessage(pattern='/add_bot'))
+async def add_bot_to_group(event):
+    # استخراج النص بعد الأمر
+    message = event.message.text.strip()
+    parts = message.split()
 
-async def main():
-    await bot.start(PHONE_NUMBER)
-
-@bot.on(events.NewMessage(pattern="/addbots"))
-async def add_bots(event):
-    if not event.is_group:
-        await event.reply("❌ يعمل فقط في المجموعات.")
+    # تحقق من وجود الأجزاء المطلوبة: الأمر واسم البوت
+    if len(parts) < 2:
+        await event.reply('يجب عليك كتابة اسم البوت بعد الأمر /add_bot.')
         return
-    chat = await event.get_chat()
-    added_count = 0
-    failed_bots = []
 
-    for bot_username in bot_usernames:
-        try:
-            user_full = await bot(GetFullUserRequest(bot_username))
-            user = user_full.user
-            if not user.bot:
-                failed_bots.append(f"⛔ {bot_username} ليس بوتًا.")
-                continue
-            input_user = InputUser(user.id, user.access_hash)
-            await bot(InviteToChannelRequest(chat, [input_user]))
-            added_count += 1
-        except (UserAlreadyParticipantError, UserPrivacyRestrictedError, RpcCallFailError, FloodWaitError) as e:
-            failed_bots.append(f"❌ فشل في إضافة {bot_username}: {str(e)}")
+    # استخراج اسم البوت من الرسالة
+    bot_username = parts[1]  # البوت الذي سيتم إضافته
+    group_id = event.chat_id  # استخدام ID المجموعة التي تم فيها إرسال الرسالة
 
-    if added_count > 0:
-        await event.reply(f"✅ تم إضافة {added_count} بوت بنجاح!")
-    if failed_bots:
-        await event.reply("\n".join(failed_bots))
+    try:
+        # الحصول على معلومات البوت
+        bot = await client.get_entity(bot_username)
+        
+        # إضافة البوت إلى المجموعة
+        await client(AddChatUserRequest(
+            chat_id=group_id,
+            user_id=bot.id,
+            fwd_limit=10  # عدد الرسائل التي يمكن إعادة توجيهها من البوت
+        ))
 
-bot.loop.run_until_complete(main())
-bot.run_until_disconnected()
+        await event.reply(f'تمت إضافة البوت {bot_username} إلى المجموعة بنجاح!')
+    except Exception as e:
+        await event.reply(f'حدث خطأ أثناء إضافة البوت: {e}')
+
+with client:
+    client.run_until_disconnected()

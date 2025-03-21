@@ -9,37 +9,36 @@ api_hash = os.getenv('API_HASH')
 client = TelegramClient('session_name', api_id, api_hash)
 
 bot_usernames = [
-    "@VIPABH_BOT", "@werewolfbot", "@D7Bot",
-    '@wueqbot', '@V2V1VBOT', '@ABHDAYSBOT',
-    '@A_B_Hbot', '@Vipabhbot', '@Games_abhbot', 
-    '@KiwetBOT', '@Hauehshbot', '@Ttoothbot',
-    '@TT_TABOT', '@Hushsyhbot', '@Viphashbot',
-    '@Httttghgttbot', '@Hshshjejeiiiiibot', '@Gagaggshbot',
-    '@Ie_t2bot', '@k_4x1BOT', '@k_4x10bot', '@Hshjshdjbbot',
-    '@Usuydhbbot', '@Udiehsjjdjdbbot', '@Usuwuwheuufbot',
-    '@Audueysabot', '@Jajshshhdbot', '@Huqisijshnhbbbot',
+    "@VIPABH_BOT", '@A_B_Hbot', '@Vipabhbot', '@Games_abhbot', 
     '@Hquwubsbbbot', '@Jajiuehehxjbbot', '@Shaysyshdhhdhbot',
+    '@Ie_t2bot', '@k_4x1BOT', '@k_4x10bot', '@Hshjshdjbbot',
+    '@Httttghgttbot', '@Hshshjejeiiiiibot', '@Gagaggshbot',
+    '@Audueysabot', '@Jajshshhdbot', '@Huqisijshnhbbbot',
+    '@Usuydhbbot', '@Udiehsjjdjdbbot', '@Usuwuwheuufbot',
     '@Bsbxxbdbabsbbot', '@Jajsjjbbbot', '@Jajajjbbbot',
+    '@TT_TABOT', '@Hushsyhbot', '@Viphashbot',
+    '@KiwetBOT', '@Hauehshbot', '@Ttoothbot',
     '@Jajajajjjbot', '@Abnhashbot'
+]
 
-    ]
 @client.on(events.NewMessage(pattern='/add_bot'))
-async def add_bot_to_group(event):
-    group_id = event.chat_id
+async def add_bot_to_chat(event):
+    chat_id = event.chat_id
     success_list = []
     failed_list = []
-    
+
     try:
-        chat = await client.get_entity(group_id)
-        
+        chat = await client.get_entity(chat_id)
+        is_channel = event.is_channel  # معرفة ما إذا كان الهدف قناة أم مجموعة
+
         for bot_username in bot_usernames:
             try:
                 bot = await client.get_entity(bot_username)
                 
-                if hasattr(chat, 'megagroup') and chat.megagroup:
-                    await client(InviteToChannelRequest(group_id, [bot.id]))
-                else:
-                    await client(AddChatUserRequest(group_id, bot.id, fwd_limit=10))
+                if is_channel:  # إذا كان الهدف قناة
+                    await client(InviteToChannelRequest(chat_id, [bot.id]))
+                else:  # إذا كان الهدف مجموعة
+                    await client(AddChatUserRequest(chat_id, bot.id, fwd_limit=10))
                 
                 success_list.append(bot_username)
             except Exception as bot_error:

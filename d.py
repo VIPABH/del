@@ -1,16 +1,14 @@
 from telethon import TelegramClient, events
 from telethon.errors import UserPrivacyRestrictedError, UserAlreadyParticipantError, RpcCallFailError
 from telethon.tl.functions.channels import InviteToChannelRequest
-from telethon.tl.types import InputPeerChannel
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import InputUser
 import os
 
-# بيانات تسجيل الدخول
-API_ID = int(os.getenv('API_ID'))  # استبدل 123456 بـ API_ID الحقيقي
-API_HASH = os.getenv('API_HASH')  # استبدل 'your_api_hash_here' بـ API_HASH الحقيقي
-PHONE_NUMBER = "+9647705984153"  # رقم الهاتف بدون مسافات
-
-# قائمة أسماء المستخدمين للبوتات
-bot_usernames = ["@VIPABH_BOT", "@D7Bot"]  
+API_ID = os.getenv('API_ID')      
+API_HASH = os.getenv('API_HASH')
+PHONE_NUMBER = "+964 770 598 4153"
+bot_usernames = ["@VIPABH_BOT", "@D7Bot"]
 
 # إنشاء العميل (تسجيل الدخول عبر رقم الهاتف)
 bot = TelegramClient("user_session", API_ID, API_HASH)
@@ -21,20 +19,20 @@ async def main():
 
 @bot.on(events.NewMessage(pattern="/addbots"))
 async def add_bots(event):
-    chat = await event.get_chat()  # الحصول على معلومات المجموعة
     if not event.is_group:  # التحقق إذا كان الأمر داخل مجموعة
         await event.reply("❌ هذا الأمر يعمل فقط في المجموعات.")
         return
 
+    chat = await event.get_chat()  # الحصول على معلومات المجموعة
     added_count = 0
     failed_bots = []
 
+    # استخدام bot_usernames بدلاً من bot_ids
     for bot_username in bot_usernames:
         try:
-            user = await bot.get_entity(bot_username)  # جلب معلومات البوت باستخدام @username
-            # استخدام InputPeerChannel بدلاً من InputPeerChat
-            input_channel = InputPeerChannel(chat.id, chat.access_hash)  # تحويل إلى InputPeerChannel
-            await bot(InviteToChannelRequest(input_channel, [user]))  # دعوة البوت للمجموعة
+            user = await bot(GetFullUserRequest(bot_username))  # جلب معلومات البوت
+            input_user = InputUser(user.user.id, user.user.access_hash)  # تحويله إلى كائن مستخدم
+            await bot(InviteToChannelRequest(chat, [input_user]))  # دعوة البوت للمجموعة
             added_count += 1
         except UserAlreadyParticipantError:
             failed_bots.append(f"⚠️ البوت {bot_username} موجود بالفعل.")

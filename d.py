@@ -32,7 +32,7 @@ async def add_bot_to_group(event):
         chat = await client.get_entity(group_id)
 
         # إذا كانت المحادثة من نوع قناة أو مجموعة ضخمة (MegaGroup)، نستخدم InviteToChannelRequest
-        if chat.megagroup or chat.broadcast:  # إذا كانت قناة أو مجموعة ضخمة (MegaGroup)
+        if hasattr(chat, 'megagroup') and (chat.megagroup or chat.broadcast):  # إذا كانت قناة أو مجموعة ضخمة (MegaGroup)
             await client(InviteToChannelRequest(
                 channel=group_id,
                 users=[bot.id]  # إضافة البوت إلى القناة أو المجموعة

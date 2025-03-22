@@ -1,15 +1,15 @@
-import asyncio
-from config import start_bot, reply_to_messages, handle_commands
+from telethon import TelegramClient
+import os
 
-async def main():
-    # استيراد client من config
-    from config.abh import client
-    
-    # بدء البوت
-    await start_bot()
-    
-    # تشغيل الوظائف الأخرى مثل الرد على الرسائل أو التعامل مع الأوامر
-    await reply_to_messages(client)
-    await handle_commands(client)
+# الحصول على المتغيرات من البيئة (يمكنك وضعها في ملف .env)
+api_id = os.getenv('API_ID')      # احصل على API_ID من موقع Telegram API
+api_hash = os.getenv('API_HASH')  # احصل على API_HASH من موقع Telegram API
+bot_token = os.getenv('BOT_TOKEN')  # توكن البوت
 
-asyncio.run(main())
+# إنشاء client باستخدام TelegramClient
+client = TelegramClient('bot_session', api_id, api_hash)
+
+# بدء الاتصال باستخدام التوكن للبوت
+async def start_bot():
+    await client.start(bot_token=bot_token)
+    print("Bot started successfully!")

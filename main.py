@@ -11,5 +11,5 @@ client = TelegramClient('bot_session', api_id, api_hash)
 
 # بدء الاتصال باستخدام التوكن للبوت
 async def start_bot():
-    await client.start(bot_token=bot_token)
-    print("Bot started successfully!")
+    ABH.run_until_disconnected()
+print("Bot started successfully!")

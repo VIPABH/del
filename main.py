@@ -1,5 +1,6 @@
 from telethon import TelegramClient
 import os
+from .config.abh import start_bot
 
 # الحصول على المتغيرات من البيئة (يمكنك وضعها في ملف .env)
 api_id = os.getenv('API_ID')      # احصل على API_ID من موقع Telegram API

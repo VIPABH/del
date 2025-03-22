@@ -7,14 +7,7 @@ api_hash = os.getenv('API_HASH')  # احصل على API_HASH من موقع Teleg
 bot_token = os.getenv('BOT_TOKEN')  # توكن البوت
 
 # إنشاء client باستخدام TelegramClient
-client = TelegramClient('bot_session', api_id, api_hash)
-from config import start_bot
-from telethon import events
-
-# إضافة حدث لتلقي الرسائل والرد عليها
-@client.on(events.NewMessage)
-async def my_event_handler(event):
-    await event.reply('تم استلام رسالتك!')
+abh = TelegramClient('bot_session', api_id, api_hash)
 
 import asyncio
 asyncio.run(start_bot())
